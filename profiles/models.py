@@ -12,16 +12,14 @@ class Profile(models.Model):
         upload_to='profile_pictures/', default="", blank=True)
     location = models.CharField(max_length=255, default="", blank=True)
     tel = models.CharField(max_length=20, default="", blank=True)
-    type = models.CharField(max_length=20, default="")
     email = models.EmailField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     language = models.CharField(max_length=20, default="")
     is_verified = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     subscription_model = models.CharField(max_length=20, default="")
-    is_child = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username or self.user.username

@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'login',
     'django_filters',
     'admin_app',
-
+    'sub_profiles',
 ]
 
 MIDDLEWARE = [
