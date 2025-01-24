@@ -8,8 +8,13 @@ from rest_framework.exceptions import PermissionDenied, NotFound, ValidationErro
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from .permissions import IsOwnerOrAdmin
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.views.decorators.cache import cache_page
 
 
+DEFAULT_TIMEOUT = getattr(settings, 'DEFAULT_TIMEOUT', 60)
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 class ProfileViewSets(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -20,6 +25,7 @@ class ProfileViewSets(generics.ListCreateAPIView):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
+    @cache_page(CACHE_TTL)
     def get(self, request, *args, **kwargs):
         try:
             pk = self.kwargs.get('pk')

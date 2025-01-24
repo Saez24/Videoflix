@@ -72,6 +72,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1',
+    'thhp://192.168.188.47'
     'http://localhost',
 ]
 
@@ -99,12 +100,36 @@ WSGI_APPLICATION = 'videoflix.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'videoflix',
+        'USER': 'saez',
+        'PASSWORD': '_d3cMDq_1',
+        'HOST': '192.168.188.47',
+        'PORT': '5432',
     }
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://192.168.188.42:6379/1",
+        "OPTIONS": {
+        "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "videoflix"
+    }
+}
+
+CACHE_TTL = 60 * 15
 
 
 # Password validation
