@@ -1,6 +1,8 @@
 from django.contrib import admin
 from profiles.models import Profile
 from sub_profiles.models import SubProfile
+from content.models import Video
+
 
 
 # Proxy-Modelle erstellen
@@ -30,9 +32,22 @@ class SubProfileAdmin(admin.ModelAdmin):
                     'first_name', 'last_name', 'is_child')
 
 
+class ContentProxy (Video):
+    class Meta:
+        proxy = True
+        app_label = 'admin_app'
+        verbose_name = 'Video'
+        verbose_name_plural = 'Videos'
+
+
+class ContentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'description', 'created_at')
+
+
 # Registrierung der Proxy-Modelle
 admin.site.register(ProfileProxy, ProfileAdmin)
 admin.site.register(SubProfileProxy, SubProfileAdmin)
+admin.site.register(ContentProxy, ContentAdmin)
 
 
 # Admin-Panel Einstellungen
