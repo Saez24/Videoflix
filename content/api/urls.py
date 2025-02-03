@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import ContentViewSets
+from .views import ContentView
 
 urlpatterns = [
-    path('content/', ContentViewSets.as_view(), name='content-list'),
+    path('', ContentView.as_view(), name='content-list'),
 ]

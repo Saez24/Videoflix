@@ -23,7 +23,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             'file',
             'location',
             'tel',
-            'type',
             'email',
             'created_at',
             'updated_at',
@@ -32,18 +31,14 @@ class ProfileSerializer(serializers.ModelSerializer):
             'is_verified',
             'is_active',
             'subscription_model',
-            'is_child',
-            'description',
-            'working_hours',
         ]
         extra_kwargs = {
             'last_name': {'required': False},
             'file': {'required': False, 'allow_null': True},
             'location': {'required': False},
             'tel': {'required': False},
-            'type': {'required': False},
             'email': {'required': False},
             'language': {'required': False},
             'subscription_model': {'required': False},
-            'is_child': {'required': False},
+            
         }

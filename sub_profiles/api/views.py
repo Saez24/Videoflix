@@ -9,6 +9,18 @@ from rest_framework.exceptions import PermissionDenied, NotFound, ValidationErro
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from .permissions import IsOwnerOrAdmin
+from rest_framework.authentication import TokenAuthentication
+
+
+class SubProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        # Nur SubProfiles zurückgeben, die zum angemeldeten Benutzer gehören
+        sub_profiles = SubProfile.objects.filter(parent_profile__user=request.user)
+        serializer = SubProfileSerializer(sub_profiles, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class SubProfileListCreateView(generics.ListCreateAPIView):
@@ -27,9 +39,9 @@ class SubProfileListCreateView(generics.ListCreateAPIView):
 
 
 class SubProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = SubProfile.objects.all()
     serializer_class = SubProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return SubProfile.objects.filter(parent_profile__user=self.request.user)
+

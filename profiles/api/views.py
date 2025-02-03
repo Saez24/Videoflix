@@ -11,12 +11,32 @@ from .permissions import IsOwnerOrAdmin
 from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
+from rest_framework.authentication import TokenAuthentication
 
 
 DEFAULT_TIMEOUT = getattr(settings, 'DEFAULT_TIMEOUT', 60)
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
-class ProfileViewSets(generics.ListCreateAPIView):
+
+class ProfileListView(generics.ListCreateAPIView):
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    
+
+class ProfileDetailView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    lookup_field = 'pk'
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+class ProfileViewSets(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    
 
     def get_permissions(self):
         if self.request.method in ['PATCH', 'PUT']:
@@ -26,7 +46,7 @@ class ProfileViewSets(generics.ListCreateAPIView):
         return [permission() for permission in permission_classes]
 
     @cache_page(CACHE_TTL)
-    def get(self, request, *args, **kwargs):
+    def get_onject(self, request, *args, **kwargs):
         try:
             pk = self.kwargs.get('pk')
             profiles = Profile.objects.get(user=pk)

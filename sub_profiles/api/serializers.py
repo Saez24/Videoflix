@@ -10,9 +10,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['pk', 'username', 'first_name', 'last_name', 'email']
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['pk', 'username', 'first_name', 'last_name', 'email']        
+
 
 class SubProfileSerializer(serializers.ModelSerializer):
     parent_profile = ProfileSerializer()
+    file = serializers.ImageField(use_url=True)
 
     class Meta:
         model = SubProfile

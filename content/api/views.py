@@ -6,25 +6,31 @@ from .seriallizers import ContentSerializer
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, NotFound, ValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
+import logging
 
-class ContentViewSets(APIView):
+logger = logging.getLogger(__name__)
+
+class ContentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        try:
-            profile = Profile.objects.get(user=self.request.user)
-            if not profile.is_staff:
-                raise PermissionDenied("Not allowed to view this content.")
+        try:         
             videos = Video.objects.all()
             serializer = ContentSerializer(videos, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except NotFound:
+
+        except Profile.DoesNotExist:
             return Response({
-                "detail": "Content not found"
+                "detail": "Profile not found"
             }, status=status.HTTP_404_NOT_FOUND)
-        except PermissionDenied:
+        except PermissionDenied as e:
             return Response({
-                "detail": "Not allowed to view this content."
+                "detail": str(e)
             }, status=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            logger.error(f"An error occurred: {str(e)}", exc_info=True)  # Log the error
+            return Response({
+                "detail": "An error occurred"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import ProfileViewSets, ProfileAdultViewSets, ProfileChildViewSets
+from .views import SubProfileView, SubProfileDetailView
 
 urlpatterns = [
-    path('<int:pk>/', ProfileViewSets.as_view(), name='profile-detail'),
-    path('adult/', ProfileAdultViewSets.as_view(), name='adult-list'),
-    path('child/', ProfileChildViewSets.as_view(), name='child-list'),
+    path('', SubProfileView.as_view(), name='subprofiles'),
+    path('<int:pk>/', SubProfileDetailView.as_view(), name='subprofiles-detail'),
+    # path('adult/', ProfileAdultViewSets.as_view(), name='adult-list'),
+    # path('child/', ProfileChildViewSets.as_view(), name='child-list'),
 ]
