@@ -1,10 +1,5 @@
 import { Component } from '@angular/core';
-import {
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterModule,
-} from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-start-page',
