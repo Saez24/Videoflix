@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import {
   Router,
@@ -5,14 +6,24 @@ import {
   RouterLinkActive,
   RouterModule,
   RouterOutlet,
+  NavigationEnd,
 } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, RouterModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, RouterModule, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   title = 'videoflix';
+  isContentPage: boolean = false;
+
+  constructor(private router: Router) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.isContentPage = event.url.includes('/content-page'); // Passe die Route an
+      }
+    });
+  }
 }

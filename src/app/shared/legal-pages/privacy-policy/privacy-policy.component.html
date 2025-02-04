@@ -1,5 +1,9 @@
 <div class="back-button">
-  <mat-icon aria-hidden="false" fontIcon="arrow_back"></mat-icon>
+  <mat-icon
+    aria-hidden="false"
+    fontIcon="arrow_back"
+    (click)="goBack()"
+  ></mat-icon>
 </div>
 <section class="legal-content">
   <div class="privacypolice scrollbar">
@@ -229,7 +233,7 @@
       Daten an einen anderen Verantwortlichen verlangen, erfolgt dies nur,
       soweit es technisch machbar ist.
     </p>
-    br
+    <br />
     <h3>Auskunft, Berichtigung und L&ouml;schung</h3>
     <p>
       Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das

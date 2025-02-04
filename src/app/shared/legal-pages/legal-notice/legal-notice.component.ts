@@ -8,4 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './legal-notice.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LegalNoticeComponent {}
+export class LegalNoticeComponent {
+  constructor() {}
+
+  goBack() {
+    window.history.back();
+  }
+}

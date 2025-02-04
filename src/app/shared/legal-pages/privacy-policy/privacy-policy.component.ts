@@ -8,4 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './privacy-policy.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrivacyPolicyComponent {}
+export class PrivacyPolicyComponent {
+  constructor() {}
+
+  goBack() {
+    window.history.back();
+  }
+}

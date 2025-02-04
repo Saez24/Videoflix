@@ -33,6 +33,7 @@ import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
   ],
   templateUrl: './sign-up.component.html',
   styleUrl: './sign-up.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignUpComponent {
   readonly email = new FormControl('', [Validators.required, Validators.email]);

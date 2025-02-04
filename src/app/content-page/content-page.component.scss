@@ -1,0 +1,23 @@
+.background {
+    // position: fixed;
+    &::after {
+        background: none;
+    }
+}
+
+.top-menu {
+    left: 0;
+    justify-content: space-between;
+}
+
+app-root .logo {
+    display: none !important;
+}
+
+.page-content {
+    height: 100vh;
+    
+}
+
+
+

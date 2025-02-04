@@ -6,6 +6,7 @@ import { SendEmailComponent } from './login/restore-account/send-email/send-emai
 import { SignInComponent } from './login/sign-in/sign-in.component';
 import { PrivacyPolicyComponent } from './shared/legal-pages/privacy-policy/privacy-policy.component';
 import { LegalNoticeComponent } from './shared/legal-pages/legal-notice/legal-notice.component';
+import { ContentPageComponent } from './content-page/content-page.component';
 
 export const routes: Routes = [
   {
@@ -19,4 +20,5 @@ export const routes: Routes = [
   { path: 'sign-in', component: SignInComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'legal-notice', component: LegalNoticeComponent },
+  { path: 'content-page', component: ContentPageComponent },
 ];

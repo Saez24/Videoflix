@@ -1,4 +1,9 @@
-<div class="logo" routerLink="/" routerLinkActive="active">
+<div
+  class="logo"
+  routerLink="/"
+  routerLinkActive="active"
+  *ngIf="!isContentPage"
+>
   <img src="./../../assets/images/logo.png" alt="logo" />
 </div>
 
