@@ -48,6 +48,7 @@ export class ApiService {
   REGISTER_URL = 'registration/';
   PROFILE_URL = 'profiles/';
   SUB_PROFILE_URL = 'sub_profiles/';
+  CONTENT_URL = 'content/';
 
   setAuthCredentials(token: string, userId: string, username: string): void {
     localStorage.setItem('auth-token', token);

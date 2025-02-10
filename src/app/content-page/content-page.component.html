@@ -1,8 +1,19 @@
 <section class="page-content">
   <header>
     <div class="background">
-      <img src="./../../assets/images/rectangle.png" alt="background" />
+      <video
+        class="background"
+        *ngIf="backgroundVideoUrl"
+        autoplay
+        loop
+        muted
+        playsinline
+      >
+        <source [src]="backgroundVideoUrl" type="video/mp4" />
+        Dein Browser unterstützt kein HTML5-Video.
+      </video>
     </div>
+
     <div class="top-menu">
       <div class="content-logo" routerLink="/" routerLinkActive="active">
         <img src="./../../assets/images/symbol.png" alt="logo" />
@@ -18,10 +29,27 @@
     </div>
   </header>
 
-  <main>
-    <div class="infotext">
-      <h1>Movies, TV shows, and more</h1>
-      <p>Enter your email to create or restart your subscription.</p>
+  <main class="content">
+    <h3>New on Videoflix</h3>
+    <div class="thumbnails">
+      <div class="thumbnail" *ngFor="let thumbnail of latestTumbnails">
+        <img [src]="thumbnail" alt="Video Thumbnail" />
+      </div>
+    </div>
+    <!-- Anzeige für jede Kategorie -->
+    <div *ngFor="let category of getCategories()">
+      <h3>{{ category | capitalize }}</h3>
+      <div class="thumbnails">
+        <div
+          *ngFor="let video of categorizedVideos[category]"
+          class="thumbnail"
+        >
+          <img
+            [src]="apiService.STATIC_BASE_URL + video.thumbnail"
+            alt="Video Thumbnail"
+          />
+        </div>
+      </div>
     </div>
   </main>
 </section>

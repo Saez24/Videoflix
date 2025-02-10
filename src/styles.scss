@@ -1,351 +1,370 @@
 @use "./../public/assets/fonts/fonts.scss";
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
 :root {
-    @include mat.card-overrides((
-            outlined-outline-color: #2e3edf
-            
-        ));
+  @include mat.card-overrides(
+    (
+      outlined-outline-color: #2e3edf,
+    )
+  );
 
-    @include mat.form-field-overrides((
-        filled-container-color: #2e3edf,
-        filled-input-text-color: #2e3edf,
-        filled-input-text-placeholder-color: #2e3edf,
-        filled-disabled-input-text-color: #2e3edf,
-        filled-label-text-color: #2e3edf,
-        filled-active-indicator-color: #2e3edf,
-        outlined-label-text-color: #2e3edf,           
-    ));
+  @include mat.form-field-overrides(
+    (
+      filled-container-color: #2e3edf,
+      filled-input-text-color: #2e3edf,
+      filled-input-text-placeholder-color: #2e3edf,
+      filled-disabled-input-text-color: #2e3edf,
+      filled-label-text-color: #2e3edf,
+      filled-active-indicator-color: #2e3edf,
+      outlined-label-text-color: #2e3edf,
+    )
+  );
 }
 
-
 .mat-mdc-card-outlined {
-    border-radius: 40px !important;
+  border-radius: 40px !important;
 }
 
 html,
 body {
-    height: 100%;
-
+  height: 100%;
 }
 
 body {
-    color: #ffffff;
-    font-family: DM Sans, sans-serif !important;
-    background-color: black;
-    margin: 0;
-    width: 100vw;
-    overflow-x: hidden;
+  color: #ffffff;
+  font-family: DM Sans, sans-serif !important;
+  background: black;
+  margin: 0;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 h1 {
-    font-size: 3rem;
-    font-weight: bold;
-    color: #fff;
-    margin-bottom: 1rem;
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 1rem;
 }
 
 p {
-    font-size: 1.25rem;
-    color: #fff;
-
+  font-size: 1.25rem;
+  color: #fff;
 }
 
 span {
-    font-size: 1rem;
-    color: #000;
+  font-size: 1rem;
+  color: #000;
 }
 
 .background {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Dunkles und verschwommenes Overlay */
+  &::after {
+    content: "";
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    overflow: hidden;
-
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    /* Dunkles und verschwommenes Overlay */
-    &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.7);
-        /* Schwarzes Overlay mit Transparenz */
-        backdrop-filter: blur(2px);
-        /* Nur das Overlay verschwommen */
-        pointer-events: none;
-        /* Klicks durchlassen */
-        z-index: 1;
-    }
+    background: rgba(0, 0, 0, 0.7);
+    /* Schwarzes Overlay mit Transparenz */
+    backdrop-filter: blur(2px);
+    /* Nur das Overlay verschwommen */
+    pointer-events: none;
+    /* Klicks durchlassen */
+    z-index: 1;
+  }
 }
 
 .top-menu {
-    display: flex;
-    position: fixed;
-    top: 3%;
-    right: 0;
-    z-index: 2;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 40px;
+  display: flex;
+  position: fixed;
+  top: 3%;
+  right: 0;
+  z-index: 2;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 40px;
 }
 
 .back-button {
-    display: flex;
-    position: absolute;
-    top: 3%;
-    right: 10%;
-    z-index: 2;
-    align-items: center;
-    gap: 1rem;
-    cursor: pointer;
-    mat-icon {
-        height: 48px;
-        width: 48px;
-        font-size: 48px;
-    }
+  display: flex;
+  position: absolute;
+  top: 3%;
+  right: 10%;
+  z-index: 2;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  mat-icon {
+    height: 48px;
+    width: 48px;
+    font-size: 48px;
+  }
 }
 
 .bottom-menu {
-    display: flex;
-    position: absolute;
-    bottom: 3%;
-    right: 0;
-    left: 0;
-    z-index: 2;
-    align-items: center;
-    gap: 2rem;
-    justify-content: center;
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  align-items: center;
+  gap: 2rem;
+  justify-content: center;
+  height: 80px;
+  z-index: 10;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0),
+    rgba(0, 0, 0, 0.8),
+    #000000
+  );
 
-    a {
-        text-decoration: none;
-        color: #fff;
-    }
+  a {
+    text-decoration: none;
+    color: #fff;
+  }
 }
 
 .logo {
-    position: fixed;
-    top: 3%;
-    left: 5%;
-    z-index: 2;
-    cursor: pointer;
+  position: fixed;
+  top: 3%;
+  left: 5%;
+  z-index: 2;
+  cursor: pointer;
 
-    img {
-        width: 200px;
-        height: 32px;
-        object-fit: contain;
-    }
+  img {
+    width: 200px;
+    height: 32px;
+    object-fit: contain;
+  }
 }
 
 p {
-    margin: 0;
+  margin: 0;
 }
 
 button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background-color: #2e3edf;
-    border: none;
-    color: #ffffff;
-    font-size: 1rem;
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    position: relative;
-    overflow: hidden;
-    transition: background-color 250ms cubic-bezier(0.4, 0, 0.68, 0.06);
-    width: 100%;
-    height: 50px;
-    max-width: 145px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #2e3edf;
+  border: none;
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.68, 0.06);
+  width: 100%;
+  height: 50px;
+  max-width: 145px;
 }
 
 button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-    transition: left 500ms ease-in-out;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0)
+  );
+  transition: left 500ms ease-in-out;
 }
 
 button:hover {
-    background-color: #222da1;
+  background-color: #222da1;
 }
 
 button:hover::before {
-    left: 100%;
+  left: 100%;
 }
 
 input {
-    background-color: #ffffff0b;
-    border: 1px solid #979797;
-    border-radius: 5px;
-    color: #000;
-    font-size: 1rem;
-    height: 45px;
-    width: 100%;
+  background-color: #ffffff0b;
+  border: 1px solid #979797;
+  border-radius: 5px;
+  color: #000;
+  font-size: 1rem;
+  height: 45px;
+  width: 100%;
 
-    &::placeholder {
-        color: #898989;
-        padding-left: 10px;
-    }
+  &::placeholder {
+    color: #898989;
+    padding-left: 10px;
+  }
 }
 
 .login-card {
-    position: absolute !important;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    opacity: 0;
-    /* Startet unsichtbar */
-    animation: fadeInUp 1s ease-out forwards;
-    /* Animation beim Laden */
-    min-width: 520px;
-    min-height: 505px;
+  position: absolute !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  opacity: 0;
+  /* Startet unsichtbar */
+  animation: fadeInUp 1s ease-out forwards;
+  /* Animation beim Laden */
+  min-width: 520px;
+  min-height: 505px;
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -40%);
-        /* Startet etwas weiter unten */
-    }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+    /* Startet etwas weiter unten */
+  }
 
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
-        /* Endposition */
-    }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    /* Endposition */
+  }
 }
 
 .login-card-content {
-    display: flex !important;
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-    padding: 56px !important;
-    h1 {
-        margin: 1rem 0;
-        color: #2e3edf;
-    }
+  display: flex !important;
+  flex-direction: column;
+  text-align: center;
+  gap: 1rem;
+  padding: 56px !important;
+  h1 {
+    margin: 1rem 0;
+    color: #2e3edf;
+  }
 
-    a {
-        color: #2e3edf;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: 700;        
-    }
+  a {
+    color: #2e3edf;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 700;
+  }
 }
 
 .password-button {
-    background-color: unset !important;
+  background-color: unset !important;
 }
 
 .legal-content {
-    position: absolute;
-    height: 100vh;
-    width: 100%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .privacypolice {
-    height: 100vh;
-    margin: 60px 40px;
-    top: 10%;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    overflow-x: scroll;
-    box-sizing: border-box;
-    padding-right: 5px;
+  height: 100vh;
+  margin: 60px 40px;
+  top: 10%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  overflow-x: scroll;
+  box-sizing: border-box;
+  padding-right: 5px;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbar {
-    overflow: auto;
-            
-/* Stellt sicher, dass das Element scrollbar ist */
+  overflow: auto;
+
+  /* Stellt sicher, dass das Element scrollbar ist */
 }
 .scrollbar::-webkit-scrollbar {
-    width: 5px;
-    /* Versteckt die Scrollleiste standardmäßig */
-    height: 5px;
-    /* Versteckt die Scrollleiste standardmäßig */
+  width: 5px;
+  /* Versteckt die Scrollleiste standardmäßig */
+  height: 5px;
+  /* Versteckt die Scrollleiste standardmäßig */
 }
-    
+
 .scrollbar:hover::-webkit-scrollbar {
-    width: 5px;
-    /* Zeigt die Scrollleiste an, wenn der Benutzer darüber fährt */
-    height: 5px;
-    /* Zeigt die Scrollleiste an, wenn der Benutzer darüber fährt */
+  width: 5px;
+  /* Zeigt die Scrollleiste an, wenn der Benutzer darüber fährt */
+  height: 5px;
+  /* Zeigt die Scrollleiste an, wenn der Benutzer darüber fährt */
 }
-    
+
 .scrollbar::-webkit-scrollbar-track {
-    border-radius: 50vh;
-    background: #595959;
+  border-radius: 50vh;
+  background: #595959;
 }
-    
+
 .scrollbar::-webkit-scrollbar-thumb {
-    background: #4b42f1;
-    border-radius: 50vh;
-    border: 1px solid #595959;
+  background: #4b42f1;
+  border-radius: 50vh;
+  border: 1px solid #595959;
 }
-    
+
 .scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #363636;
+  background: #363636;
 }
 
 @media (max-width: 768px) {
-    .login-card {
-        min-width: 358px;
-    }
+  .login-card {
+    min-width: 358px;
+  }
 
-    .email-input {
-        flex-direction: column;
-        align-items: center;
-    }
+  .email-input {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 @media (max-width: 480px) {
-    .login-card {
-        width: 90%;
-        min-width: unset;
-    }
+  .login-card {
+    width: 90%;
+    min-width: unset;
+  }
 }
-     
 
-.mdc-text-field:not(.mdc-text-field--invalid):not(.mdc-text-field--focused):not(.mdc-text-field--disabled) {
-    .mdc-notched-outline>* {
-        border-color: #4b42f1 !important;
-        
-    }
+.mdc-text-field:not(.mdc-text-field--invalid):not(.mdc-text-field--focused):not(
+    .mdc-text-field--disabled
+  ) {
+  .mdc-notched-outline > * {
+    border-color: #4b42f1 !important;
+  }
 }
