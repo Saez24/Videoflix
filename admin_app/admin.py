@@ -2,6 +2,7 @@ from django.contrib import admin
 from profiles.models import Profile
 from sub_profiles.models import SubProfile
 from content.models import Video
+from django.utils.html import format_html
 
 
 
@@ -41,7 +42,14 @@ class ContentProxy (Video):
 
 
 class ContentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'description', 'created_at')
+    list_display = ('id', 'title', 'description', 'created_at', 'thumbnail_preview', 'likes', 'dislikes', 'views', 'category')
+
+    def thumbnail_preview(self, obj):
+        if obj.thumbnail:
+            return format_html('<img src="{}" width="100" style="border-radius: 8px;"/>', obj.thumbnail.url)
+        return "Kein Thumbnail"
+    
+    thumbnail_preview.short_description = 'Thumbnail Vorschau'
 
 
 # Registrierung der Proxy-Modelle

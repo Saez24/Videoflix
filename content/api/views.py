@@ -1,3 +1,4 @@
+from re import I
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from profiles.models import Profile
@@ -13,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ContentView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
         try:         

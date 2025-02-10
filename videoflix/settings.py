@@ -67,11 +67,16 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-# CORS_ALLOWED_ORIGIN_REGEXES als Liste umwandeln
-CORS_ALLOWED_ORIGIN_REGEXES = config('CORS_ALLOWED_ORIGIN_REGEXES', cast=Csv())
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://127\.0\.0\.1:\d+$",
+    r"^http://localhost:\d+$",
+]
 
-# CSRF_TRUSTED_ORIGINS als Liste umwandeln
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1',
+    'http://192.168.188.47'
+    'http://localhost',
+]
 
 ROOT_URLCONF = 'videoflix.urls'
 
