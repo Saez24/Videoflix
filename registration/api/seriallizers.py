@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from profiles.models import Profile
 from django.contrib.auth.password_validation import validate_password
+from registration.utils import send_confirmation_email
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -74,7 +75,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # Erstelle den Benutzer
         account = User(
             email=self.validated_data['email'],
-            username=self.validated_data['username']
+            username=self.validated_data['username'],
+            is_active=False
         )
         account.set_password(pw)
         account.save()
@@ -98,5 +100,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         profile.email = account.email
 
         profile.save()
+        
+        send_confirmation_email(account)
 
         return account

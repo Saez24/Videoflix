@@ -37,7 +37,6 @@ class ProfileViewSets(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     
-
     def get_permissions(self):
         if self.request.method in ['PATCH', 'PUT']:
             permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
@@ -46,37 +45,30 @@ class ProfileViewSets(generics.RetrieveUpdateAPIView):
         return [permission() for permission in permission_classes]
 
     @cache_page(CACHE_TTL)
-    def get_onject(self, request, *args, **kwargs):
+    def get_object(self):
         try:
             pk = self.kwargs.get('pk')
-            profiles = Profile.objects.get(user=pk)
-            serializer = ProfileSerializer(profiles)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except NotFound:
-            return Response({
-                "detail": "Profile not found"
-            }, status=status.HTTP_404_NOT_FOUND)
+            profile = Profile.objects.get(user=pk)
+            return profile
+        except Profile.DoesNotExist:
+            raise NotFound("Profile not found")
 
     def patch(self, request, *args, **kwargs):
-        pk = self.kwargs.get('pk')
-        user = User.objects.get(pk=pk)
-
         try:
-            profile = Profile.objects.get(user=pk)
+            profile = self.get_object()
+            user = profile.user
+
+            # Überprüfe Berechtigungen
             if not (request.user == user or request.user.is_staff):
                 raise PermissionDenied("Not allowed to edit this profile.")
 
-            # Profil aktualisieren
-            profile_data = self.update_profile(profile, request.data)
+            # Profil und Benutzer aktualisieren
+            serializer = self.get_serializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
 
-            # Benutzer aktualisieren
-            self.update_user(user, request.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-            return Response(profile_data, status=status.HTTP_200_OK)
-        except NotFound:
-            return Response({
-                "detail": "Profile not found"
-            }, status=status.HTTP_404_NOT_FOUND)
         except PermissionDenied:
             return Response({
                 "detail": "Not allowed to edit this profile."
@@ -85,6 +77,7 @@ class ProfileViewSets(generics.RetrieveUpdateAPIView):
             return Response({
                 "errors": e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
+        
 
     def update_profile(self, profile, data):
         profile_serializer = ProfileSerializer(
@@ -107,6 +100,8 @@ class ProfileViewSets(generics.RetrieveUpdateAPIView):
                 user, data=user_data, partial=True)
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
+            return user_serializer.data
+        return {}
 
 
 class ProfileAdultViewSets(APIView):

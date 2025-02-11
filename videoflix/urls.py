@@ -20,6 +20,9 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from registration.api.views import VerifyEmailView
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/login/', include('login.api.urls')),
@@ -27,6 +30,7 @@ urlpatterns = [
     path('api/profiles/', include('profiles.api.urls')),
     path('api/content/', include('content.api.urls')),
     path('api/sub_profiles/', include('sub_profiles.api.urls')),
+    path('api/registration/verify/<uidb64>/<token>/', VerifyEmailView.as_view(), name='verify-email'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

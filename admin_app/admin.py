@@ -16,8 +16,7 @@ class ProfileProxy(Profile):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'first_name',
-                    'last_name', 'email', 'is_active', 'is_verified', 'subscription_model')
+    list_display = ('id', 'username', 'email')
 
 
 class SubProfileProxy(SubProfile):
