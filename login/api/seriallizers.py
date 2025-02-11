@@ -1,21 +1,27 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-
+from django.contrib.auth.models import User
 
 class CustomLoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    email = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username = data.get('username')
+        email = data.get('email')
         password = data.get('password')
-        if not username or not password:
+
+        if not email or not password:
             raise serializers.ValidationError(
-                {"detail": "Username and Password are required."})
-        user = authenticate(username=username, password=password)
+                {"detail": "Email and Password are required."}
+            )
+
+        # Verwende das benutzerdefinierte Backend zur Authentifizierung
+        user = authenticate(email=email, password=password)
+
         if user is None:
             raise serializers.ValidationError(
-                {"detail": "Wrong username or password."})
+                {"detail": "Wrong email or password."}
+            )
+
         data['user'] = user
         return data

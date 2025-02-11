@@ -5,6 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from profiles.models import Profile
 from rest_framework import status
+from django.contrib.auth.models import User
 
 
 class RegistrationView(APIView):
@@ -13,27 +14,35 @@ class RegistrationView(APIView):
     def post(self, request):
         request.data['username'] = generate_username(request)
         serializer = RegistrationSerializer(data=request.data)
-        data = {}
         if serializer.is_valid():
             saved_account = serializer.save()
             token, created = Token.objects.get_or_create(user=saved_account)
+            generate_profile(request, saved_account)
+
             data = {
                 'token': token.key,
                 'username': saved_account.username,
                 'email': saved_account.email,
-                "user_id": saved_account.pk
+                'user_id': saved_account.pk,
             }
-            generate_profile(request, saved_account)
-            return Response(data)
+            return Response(data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def generate_username(request):
-    username = request.data.get('username', '')
-    if ' ' in username:
-        username = username.replace(' ', '_')
-    return username.lower()
+    email = request.data.get('email', '')
+    username = email.split('@')[0]  # Nutze den Teil vor dem @ als Benutzernamen
+    username = username.replace('.', '_').lower()  # Ersetze Punkte durch Unterstriche
+
+    # Stelle sicher, dass der Benutzername eindeutig ist
+    counter = 1
+    original_username = username
+    while User.objects.filter(username=username).exists():
+        username = f"{original_username}_{counter}"
+        counter += 1
+
+    return username
 
 
 def generate_profile(request, saved_account):
@@ -42,16 +51,12 @@ def generate_profile(request, saved_account):
     first_name_registration = request.data.get('first_name', '')
     last_name_registration = request.data.get('last_name', '')
 
-    if not first_name_registration or not last_name_registration:
-        first_name_registration = ''
-        last_name_registration = ''
+    # Aktualisiere den Benutzer mit den zusätzlichen Daten
+    saved_account.first_name = first_name_registration
+    saved_account.last_name = last_name_registration
+    saved_account.save()
 
-    user = saved_account
-    user.first_name = first_name_registration
-    user.last_name = last_name_registration
-    user.save()
-
-    # Überprüfe, ob bereits ein Profil existiert
+    # Erstelle oder aktualisiere das Profil
     profile, created = Profile.objects.get_or_create(
         user=saved_account,
         defaults={

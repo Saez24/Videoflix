@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from profiles.models import Profile
+from django.contrib.auth.password_validation import validate_password
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_active', 'is_staff']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -37,26 +38,26 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    repeated_password = serializers.CharField(write_only=True)
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'repeated_password']
+        fields = ['username', 'email', 'password']
         extra_kwargs = {
             'password': {
                 'write_only': True
             }
         }
 
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Diese E-Mail ist bereits registriert.")
+        return value    
+
     def save(self):
         pw = self.validated_data['password']
-        repeated_pw = self.validated_data['repeated_password']
-
-        # Überprüfe, ob die Passwörter übereinstimmen
-        if pw != repeated_pw:
-            raise serializers.ValidationError(
-                {"password": ["Passwords do not match."]},
-            )
+        
 
         # Überprüfe, ob die E-Mail bereits vergeben ist
         if User.objects.filter(email=self.validated_data['email']).exists():
