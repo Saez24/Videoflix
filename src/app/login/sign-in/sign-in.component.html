@@ -43,7 +43,16 @@
         </button>
       </mat-form-field>
       <mat-checkbox class="remember-me">Remember me</mat-checkbox>
-      <button>Log in</button>
+      <button
+        (click)="
+          authService.logIn({
+            email: email.value || '',
+            password: password.value || ''
+          })
+        "
+      >
+        Log in
+      </button>
       <a routerLink="/reset-password" routerLinkActive="active"
         >Forgot password?</a
       >

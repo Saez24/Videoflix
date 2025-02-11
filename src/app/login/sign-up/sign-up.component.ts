@@ -15,6 +15,7 @@ import { merge } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
+import { AuthService } from '../../shared/services/authentication/auth.service';
 
 @Component({
   selector: 'app-sign-up',
@@ -38,11 +39,12 @@ import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 export class SignUpComponent {
   readonly email = new FormControl('', [Validators.required, Validators.email]);
   readonly password = new FormControl('', [Validators.required]);
+  readonly repeated_password = new FormControl('', [Validators.required]);
 
   errorMessage = signal('');
   hide = signal(true);
 
-  constructor() {
+  constructor(public authService: AuthService) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());

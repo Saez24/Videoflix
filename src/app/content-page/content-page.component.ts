@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { ApiService } from '../shared/services/api/api.service';
 import { NgFor, NgIf } from '@angular/common';
 import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
+import { AuthService } from '../shared/services/authentication/auth.service';
 
 @Component({
   selector: 'app-content-page',
@@ -21,7 +22,7 @@ import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentPageComponent implements OnInit {
-  constructor(public apiService: ApiService) {}
+  constructor(public apiService: ApiService, public authService: AuthService) {}
   videos: any[] = [];
   thumbnails: any[] = [];
   backgroundVideoUrl: string = '';

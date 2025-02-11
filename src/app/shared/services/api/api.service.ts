@@ -1,39 +1,11 @@
 import { Injectable } from '@angular/core';
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   ok: boolean;
   status: number | string;
   data?: T;
   message?: string;
   full_msg?: any;
-}
-
-interface PostDataResponse<T> {
-  ok: boolean;
-  status: number | string;
-  data?: T;
-  message?: string;
-}
-
-interface PostDataWJSONResponse<T> {
-  ok: boolean;
-  status: number | string;
-  data?: T;
-  message?: string;
-}
-
-interface PatchDataResponse<T> {
-  ok: boolean;
-  status: number | string;
-  data?: T;
-  message?: string;
-}
-
-interface PatchDataWithFormDataResponse<T> {
-  ok: boolean;
-  status: number | string;
-  data?: T;
-  message?: string;
 }
 
 @Injectable({
@@ -50,9 +22,9 @@ export class ApiService {
   SUB_PROFILE_URL = 'sub_profiles/';
   CONTENT_URL = 'content/';
 
-  setAuthCredentials(token: string, userId: string, username: string): void {
+  setAuthCredentials(token: string, userId: string, email: string): void {
     localStorage.setItem('auth-token', token);
-    localStorage.setItem('auth-user', username);
+    localStorage.setItem('auth-user', email);
     localStorage.setItem('auth-user-id', userId);
   }
 
@@ -83,32 +55,35 @@ export class ApiService {
   jsonToFormData(json: Record<string, any>): FormData {
     const formData = new FormData();
 
-    const appendFormData = (data: any, parentKey: string | null) => {
-      if (
-        data &&
-        typeof data === 'object' &&
-        !(data instanceof Date) &&
-        !(data instanceof File)
-      ) {
+    const appendFormData = (data: any, parentKey: string = '') => {
+      if (data && typeof data === 'object' && !(data instanceof File)) {
         Object.keys(data).forEach((key) => {
           appendFormData(data[key], parentKey ? `${parentKey}[${key}]` : key);
         });
       } else {
-        formData.append(parentKey!, data);
+        formData.append(parentKey, data);
       }
     };
 
-    appendFormData(json, '');
-
+    appendFormData(json);
     return formData;
   }
 
-  createHeaders(): Record<string, string> {
-    const headers: Record<string, string> = {};
+  createHeaders(
+    contentType: string = 'application/json',
+    withAuth: boolean = true
+  ): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': contentType,
+      Accept: 'application/json',
+    };
 
-    const token = this.getAuthToken();
-    if (token) {
-      headers['Authorization'] = `Token ${token}`;
+    if (withAuth) {
+      // Nur Token setzen, wenn gewünscht
+      const token = this.getAuthToken();
+      if (token) {
+        headers['Authorization'] = `Token ${token}`;
+      }
     }
 
     return headers;
@@ -129,6 +104,7 @@ export class ApiService {
       });
 
       const responseData = await response.json();
+      console.log('Response Data:', responseData);
 
       return {
         ok: response.ok,
@@ -144,7 +120,7 @@ export class ApiService {
     }
   }
 
-  async postData<T>(endpoint: string, data: any): Promise<PostDataResponse<T>> {
+  async postData<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${this.API_BASE_URL}${endpoint}`, {
         method: 'POST',
@@ -167,38 +143,29 @@ export class ApiService {
     }
   }
 
-  async postDataWJSON<T>(
-    endpoint: string,
-    data: any
-  ): Promise<PostDataWJSONResponse<T>> {
-    let header = this.createHeaders();
-    header['Content-Type'] = 'application/json';
-    try {
-      const response = await fetch(`${this.API_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: header,
-        body: JSON.stringify(data),
-      });
+  async postDataWJSON<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    // console.log('Login Request Payload:', JSON.stringify(data)); // Debug Log
 
-      const responseData = await response.json();
-      return {
-        ok: response.ok,
-        status: response.status,
-        data: responseData,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        status: 'error',
-        message: 'network error',
-      };
-    }
+    const response = await fetch(`${this.API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: this.createHeaders('application/json', false), // Kein Token beim Login
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await response.json();
+    console.log('Response Data:', responseData); // Debug Log
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data: responseData,
+    };
   }
 
   async patchDataWoFiles<T>(
     endpoint: string,
     data: any
-  ): Promise<PatchDataResponse<T>> {
+  ): Promise<ApiResponse<T>> {
     let header = this.createHeaders();
     header['Content-Type'] = 'application/json';
     try {
@@ -226,7 +193,7 @@ export class ApiService {
   async patchData<T>(
     endpoint: string,
     formData: FormData
-  ): Promise<PatchDataWithFormDataResponse<T>> {
+  ): Promise<ApiResponse<T>> {
     const headers = this.createHeaders();
 
     try {

@@ -1,18 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { ApiService } from '../api/api.service';
+import { ApiService, ApiResponse } from '../api/api.service';
 import { Router } from '@angular/router';
 
 interface LoginResponse {
-  ok: boolean;
-  data?: {
-    token: string;
-    user_id: string;
-    username: string;
-  };
+  token: string;
+  user_id: string;
+  email: string;
+  is_active: boolean;
 }
 
-interface FormData {
-  [key: string]: any;
+interface RegistrationResponse {
+  id: number;
+  email: string;
 }
 
 @Injectable({
@@ -29,57 +28,55 @@ export class AuthService {
     this.router.navigateByUrl('');
   }
 
-  async logIn(formData: FormData): Promise<void> {
-    console.log('Login-Daten:', formData);
+  async logIn(data: {
+    email: string;
+    password: string;
+  }): Promise<ApiResponse<LoginResponse>> {
+    const response = await this.apiService.postDataWJSON<LoginResponse>(
+      this.apiService.LOGIN_URL,
+      data
+    );
 
-    try {
-      const response: LoginResponse = await this.apiService.postDataWJSON(
-        this.apiService.LOGIN_URL,
-        formData
-      );
+    console.log(data);
 
-      if (!response.ok) {
-        console.error('Login fehlgeschlagen.');
-        // Optionale Fehleranzeige, z. B. Toast-Benachrichtigung
-        // this.showFormErrors(['error_pw']);
-      } else {
-        if (response.data) {
-          this.apiService.setAuthCredentials(
-            response.data.token,
-            response.data.user_id,
-            response.data.username
-          );
-        }
-        this.router.navigateByUrl('select-account');
+    if (response.ok && response.data) {
+      if (!response.data.is_active) {
+        console.error('Account ist noch nicht aktiviert.');
+        return {
+          ok: false,
+          status: response.status,
+          message:
+            'Bitte bestätige zuerst deine E-Mail-Adresse, bevor du dich einloggst.',
+        };
       }
-    } catch (error) {
-      console.error('Netzwerkfehler beim Login:', error);
+
+      this.apiService.setAuthCredentials(
+        response.data.token,
+        response.data.user_id,
+        response.data.email
+      );
+      this.router.navigateByUrl('content-page');
     }
+
+    return response;
   }
 
-  async registration(data: FormData): Promise<void> {
-    try {
-      const response: LoginResponse = await this.apiService.postDataWJSON(
-        this.apiService.REGISTER_URL,
-        data
-      );
+  async register(data: {
+    email: string;
+    password: string;
+    repeated_password: string;
+  }) {
+    const response = await this.apiService.postDataWJSON<RegistrationResponse>(
+      this.apiService.REGISTER_URL,
+      data
+    );
 
-      if (!response.ok) {
-        console.error('Registrierung fehlgeschlagen:', response);
-        // Hier können Fehlerdetails extrahiert und angezeigt werden
-        // this.showToastMessage(true, ['Registrierungsfehler']);
-      } else {
-        if (response.data) {
-          this.apiService.setAuthCredentials(
-            response.data.token,
-            response.data.user_id,
-            response.data.username
-          );
-        }
-        this.router.navigateByUrl('select-account');
-      }
-    } catch (error) {
-      console.error('Netzwerkfehler bei der Registrierung:', error);
+    if (response.ok) {
+      console.log('Registrierung erfolgreich:', response.data);
+      this.router.navigateByUrl('sign-in');
+    } else {
+      console.error('Registrierung fehlgeschlagen:', response.message);
+      // Hier evtl. eine Fehlermeldung anzeigen
     }
   }
 }

@@ -4,6 +4,7 @@
       <video
         class="background"
         *ngIf="backgroundVideoUrl"
+        lazyLoad
         autoplay
         loop
         muted
@@ -18,11 +19,7 @@
       <div class="content-logo" routerLink="/" routerLinkActive="active">
         <img src="./../../assets/images/symbol.png" alt="logo" />
       </div>
-      <button
-        class="login-button"
-        routerLink="/sign-in"
-        routerLinkActive="active"
-      >
+      <button class="login-button" (click)="authService.logOut()">
         <mat-icon aria-hidden="false" fontIcon="logout"></mat-icon>
         <p>Log Out</p>
       </button>

@@ -56,7 +56,7 @@
         <input
           matInput
           [type]="hide() ? 'password' : 'text'"
-          [formControl]="password"
+          [formControl]="repeated_password"
           [autocomplete]="true"
         />
         <button
@@ -71,7 +71,17 @@
         </button>
       </mat-form-field>
 
-      <button>Get started</button>
+      <button
+        (click)="
+          authService.register({
+            email: email.value || '',
+            password: password.value || '',
+            repeated_password: repeated_password.value || ''
+          })
+        "
+      >
+        Get started
+      </button>
     </mat-card-content>
   </mat-card>
 </main>

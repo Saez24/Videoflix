@@ -15,6 +15,7 @@ import { merge } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
+import { AuthService } from '../../shared/services/authentication/auth.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -42,7 +43,7 @@ export class SignInComponent {
   errorMessage = signal('');
   hide = signal(true);
 
-  constructor() {
+  constructor(public authService: AuthService) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());
