@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  AfterViewInit,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { ApiService } from '../shared/services/api/api.service';
@@ -37,8 +42,15 @@ export class ContentPageComponent implements OnInit {
     this.getThumbnails();
   }
 
-  getVideos() {
-    this.apiService.getData('content/').then((response) => {
+  // ngAfterViewInit() {
+  //   // this.apiService.getAuthUser();
+  //   // this.apiService.getAuthUserId();
+  //   this.getVideos();
+  //   this.getThumbnails();
+  // }
+
+  async getVideos() {
+    await this.apiService.getData('content/').then((response) => {
       this.videos = response.data;
       console.log('Videos:', this.videos);
       this.groupVideosByCategory();
@@ -68,8 +80,8 @@ export class ContentPageComponent implements OnInit {
     console.log('Categorized Videos:', this.categorizedVideos);
   }
 
-  getThumbnails() {
-    this.apiService.getData('content/').then((response) => {
+  async getThumbnails() {
+    await this.apiService.getData('content/').then((response) => {
       // Korrekt die URLs der Thumbnails extrahieren
       this.thumbnails = response.data.map(
         (video: any) => this.apiService.STATIC_BASE_URL + video.thumbnail
@@ -79,7 +91,7 @@ export class ContentPageComponent implements OnInit {
     });
   }
 
-  getLatestVideoThumbnails() {
+  async getLatestVideoThumbnails() {
     this.latestTumbnails = this.thumbnails
       .sort(
         (a, b) =>
