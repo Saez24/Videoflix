@@ -26,8 +26,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Oder dein SMTP-Server
-EMAIL_PORT = 587
+EMAIL_HOST = config('EMAIL_HOST')  # Oder dein SMTP-Server
+EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
@@ -40,9 +40,9 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
@@ -80,16 +80,9 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = False
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^http://127\.0\.0\.1:\d+$",
-    r"^http://localhost:\d+$",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = config('CORS_ALLOWED_ORIGIN_REGEXES', default='').split(',')
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1',
-    'http://192.168.188.47'
-    'http://localhost',
-]
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
 
 ROOT_URLCONF = 'videoflix.urls'
 
