@@ -16,6 +16,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { AuthService } from '../../shared/services/authentication/auth.service';
+import { SnackBarService } from '../../shared/services/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -43,7 +44,10 @@ export class SignInComponent {
   errorMessage = signal('');
   hide = signal(true);
 
-  constructor(public authService: AuthService) {
+  constructor(
+    public authService: AuthService,
+    private snackBarService: SnackBarService
+  ) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())
       .subscribe(() => this.updateErrorMessage());

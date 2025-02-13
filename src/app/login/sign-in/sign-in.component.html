@@ -32,7 +32,7 @@
           [autocomplete]="true"
         />
         <button
-          class="password-button"
+          class="btn password-button"
           mat-icon-button
           matSuffix
           (click)="clickEvent($event)"
@@ -44,6 +44,7 @@
       </mat-form-field>
       <mat-checkbox class="remember-me">Remember me</mat-checkbox>
       <button
+        class="btn"
         (click)="
           authService.logIn({
             email: email.value || '',

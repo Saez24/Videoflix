@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService, ApiResponse } from '../api/api.service';
 import { Router } from '@angular/router';
+import { SnackBarService } from '../snack-bar/snack-bar.service';
 
 interface LoginResponse {
   token: string;
@@ -20,6 +21,7 @@ interface RegistrationResponse {
 export class AuthService {
   router = inject(Router);
   apiService = inject(ApiService);
+  snackBarService = inject(SnackBarService);
 
   constructor() {}
 
@@ -37,16 +39,17 @@ export class AuthService {
       data
     );
 
-    console.log(data);
+    // console.log(data);
 
     if (response.ok && response.data) {
       if (!response.data.is_active) {
-        console.error('Account ist noch nicht aktiviert.');
+        // console.error('Account ist noch nicht aktiviert.');
+        this.snackBarService.showSnackBarActivateAccount();
         return {
           ok: false,
           status: response.status,
           message:
-            'Bitte bestätige zuerst deine E-Mail-Adresse, bevor du dich einloggst.',
+            'Please activate your account. Check your email for the activation link.',
         };
       }
 
@@ -72,10 +75,15 @@ export class AuthService {
     );
 
     if (response.ok) {
-      console.log('Registrierung erfolgreich:', response.data);
-      this.router.navigateByUrl('sign-in');
+      // console.log('Registrierung erfolgreich:', response.data);
+      this.snackBarService
+        .showSnackBarRegister()
+        .afterDismissed()
+        .subscribe(() => {
+          this.router.navigateByUrl('sign-in'); // Weiterleiten nach Schließen der Snackbar
+        });
     } else {
-      console.error('Registrierung fehlgeschlagen:', response.message);
+      console.error('Registration failed:', response.message);
       // Hier evtl. eine Fehlermeldung anzeigen
     }
   }

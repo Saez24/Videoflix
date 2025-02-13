@@ -1,0 +1,9 @@
+<div class="verification-container">
+  <h2>{{ message }}</h2>
+  <p *ngIf="success">You will be redirected in a few seconds...</p>
+  <br />
+  <p *ngIf="success">
+    If the redirection does not work, please follow the
+    <a class="link" routerLink="/sign-in" routerLinkActive="active">link</a>
+  </p>
+</div>

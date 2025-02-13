@@ -52,7 +52,7 @@ export class ContentPageComponent implements OnInit {
   async getVideos() {
     await this.apiService.getData('content/').then((response) => {
       this.videos = response.data;
-      console.log('Videos:', this.videos);
+      // console.log('Videos:', this.videos);
       this.groupVideosByCategory();
       this.setBackgroundVideo();
     });
@@ -77,7 +77,7 @@ export class ContentPageComponent implements OnInit {
       }
     });
 
-    console.log('Categorized Videos:', this.categorizedVideos);
+    // console.log('Categorized Videos:', this.categorizedVideos);
   }
 
   async getThumbnails() {
@@ -86,7 +86,7 @@ export class ContentPageComponent implements OnInit {
       this.thumbnails = response.data.map(
         (video: any) => this.apiService.STATIC_BASE_URL + video.thumbnail
       );
-      console.log('Thumbnails:', this.thumbnails);
+      // console.log('Thumbnails:', this.thumbnails);
       this.getLatestVideoThumbnails();
     });
   }
@@ -98,7 +98,7 @@ export class ContentPageComponent implements OnInit {
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       )
       .slice(0, 6); // Die neuesten 6 Videos
-    console.log('Latest Tumbnails:', this.latestTumbnails);
+    // console.log('Latest Tumbnails:', this.latestTumbnails);
   }
 
   setBackgroundVideo() {
@@ -110,7 +110,7 @@ export class ContentPageComponent implements OnInit {
 
       this.backgroundVideoUrl =
         this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file;
-      console.log('Most Viewed Video:', this.backgroundVideoUrl);
+      // console.log('Most Viewed Video:', this.backgroundVideoUrl);
     }
   }
 }

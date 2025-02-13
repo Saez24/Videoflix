@@ -18,11 +18,14 @@ import {
 export class AppComponent {
   title = 'videoflix';
   isContentPage: boolean = false;
+  showFooter = true;
 
   constructor(private router: Router) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.isContentPage = event.url.includes('/content-page'); // Passe die Route an
+        this.showFooter =
+          event.url !== '/legal-notice' && event.url !== '/privacy-policy';
       }
     });
   }

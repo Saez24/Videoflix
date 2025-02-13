@@ -4,7 +4,7 @@
   </div>
   <div class="top-menu">
     <button
-      class="login-button"
+      class="btn login-button"
       routerLink="/sign-in"
       routerLinkActive="active"
     >
@@ -41,7 +41,7 @@
           [autocomplete]="true"
         />
         <button
-          class="password-button"
+          class="btn password-button"
           mat-icon-button
           matSuffix
           (click)="clickEvent($event)"
@@ -60,7 +60,7 @@
           [autocomplete]="true"
         />
         <button
-          class="password-button"
+          class="btn password-button"
           mat-icon-button
           matSuffix
           (click)="clickEvent($event)"
@@ -72,6 +72,7 @@
       </mat-form-field>
 
       <button
+        class="btn"
         (click)="
           authService.register({
             email: email.value || '',
