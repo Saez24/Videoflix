@@ -14,7 +14,10 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -85,18 +88,23 @@ def generate_profile(request, saved_account):
         profile.save()
 
 class VerifyEmailView(APIView):
-    def get(self, request, uidb64, token):
+    def post(self, request, *args, **kwargs):
+        uidb64 = kwargs.get("uidb64")
+        token = kwargs.get("token")
+
         try:
-            # Benutzer-ID aus dem URL-Parameter dekodieren
+            # Benutzer-ID dekodieren
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
 
-            # Überprüfen, ob der Token gültig ist
+            # Token validieren
             if default_token_generator.check_token(user, token):
-                user.is_active = True  # Benutzer aktivieren
+                user.is_active = True  
                 user.save()
-                return Response({"message": "E-Mail erfolgreich bestätigt!"}, status=status.HTTP_200_OK)
+                return Response({"message": "E-Mail successfully verified."}, status=status.HTTP_200_OK)
             else:
-                return Response({"error": "Ungültiger oder abgelaufener Token."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
         except (User.DoesNotExist, ValueError, TypeError):
-            return Response({"error": "Ungültiger Bestätigungslink."}, status=status.HTTP_400_BAD_REQUEST)      
+            return Response({"error": "Invalid confirmation link."}, status=status.HTTP_400_BAD_REQUEST)
+     

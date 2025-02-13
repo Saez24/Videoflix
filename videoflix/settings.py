@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
-from decouple import config, Csv
+from decouple import config
 import ssl
 import certifi
 
-ssl_context = ssl.create_default_context(cafile=certifi.where())
+EMAIL_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 
 
@@ -28,7 +28,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')  # Oder dein SMTP-Server
 EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
@@ -40,7 +40,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", default=True)
+DEBUG = True
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
@@ -78,7 +78,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', cast=bool)
 
 CORS_ALLOWED_ORIGIN_REGEXES = config('CORS_ALLOWED_ORIGIN_REGEXES', default='').split(',')
 

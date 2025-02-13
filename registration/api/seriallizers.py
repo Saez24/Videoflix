@@ -60,11 +60,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         pw = self.validated_data['password']
         
 
-        # Überprüfe, ob die E-Mail bereits vergeben ist
-        if User.objects.filter(email=self.validated_data['email']).exists():
-            raise serializers.ValidationError(
-                {"email": ["This email is already in use."]},
-            )
+        # # Überprüfe, ob die E-Mail bereits vergeben ist
+        # if User.objects.filter(email=self.validated_data['email']).exists():
+        #     raise serializers.ValidationError(
+        #         {"email": ["This email is already in use."]},
+        #     )
 
         # Überprüfe, ob der Benutzername bereits vergeben ist
         if User.objects.filter(username=self.validated_data['username']).exists():
