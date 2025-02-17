@@ -1,15 +1,11 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  AfterViewInit,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { ApiService } from '../shared/services/api/api.service';
-import { NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
 import { AuthService } from '../shared/services/authentication/auth.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-content-page',
@@ -21,6 +17,8 @@ import { AuthService } from '../shared/services/authentication/auth.service';
     NgIf,
     NgFor,
     CapitalizePipe,
+    AsyncPipe,
+    KeyValuePipe,
   ],
   templateUrl: './content-page.component.html',
   styleUrl: './content-page.component.scss',
@@ -28,16 +26,27 @@ import { AuthService } from '../shared/services/authentication/auth.service';
 })
 export class ContentPageComponent implements OnInit {
   constructor(public apiService: ApiService, public authService: AuthService) {}
-  videos: any[] = [];
-  thumbnails: any[] = [];
-  backgroundVideoUrl: string = '';
-  latestVideos: any[] = [];
-  latestTumbnails: any[] = [];
-  categorizedVideos: { [category: string]: any[] } = {};
+
+  videos$ = new BehaviorSubject<any[]>([]);
+  thumbnails$ = new BehaviorSubject<string[]>([]);
+  backgroundVideoUrl$ = new BehaviorSubject<string>('');
+  private latestThumbnailsSubject = new BehaviorSubject<string[]>([]);
+  latestThumbnails$ = this.latestThumbnailsSubject.asObservable();
+  categorizedVideos$ = new BehaviorSubject<{ [category: string]: any[] }>({});
+  selectedVideoUrl$ = new BehaviorSubject<string | null>(null);
+  currentQuality = '720p'; // Standardqualität
+  selectedVideo: string | null = null; // Das aktuell ausgewählte Video
+  showQualityMenu = false; // Steuerung der Sichtbarkeit des Qualitätsmenüs
+  availableQualities: ('360p' | '720p' | '1080p')[] = ['360p', '720p', '1080p'];
+
+  // Hier definierst du die Videoquellen für jede Qualität
+  qualitySources: { [key in '360p' | '720p' | '1080p']: string } = {
+    '360p': 'path_to_video_360p.mp4',
+    '720p': 'path_to_video_720p.mp4',
+    '1080p': 'path_to_video_1080p.mp4',
+  };
 
   ngOnInit() {
-    // this.apiService.getAuthUser();
-    // this.apiService.getAuthUserId();
     this.getVideos();
     this.getThumbnails();
   }
@@ -50,67 +59,82 @@ export class ContentPageComponent implements OnInit {
   // }
 
   async getVideos() {
-    await this.apiService.getData('content/').then((response) => {
-      this.videos = response.data;
-      // console.log('Videos:', this.videos);
-      this.groupVideosByCategory();
-      this.setBackgroundVideo();
-    });
+    const response = await this.apiService.getData('content/');
+    this.videos$.next(response.data);
+    this.groupVideosByCategory(response.data);
+    this.setBackgroundVideo(response.data);
   }
 
   getCategories(): string[] {
-    return Object.keys(this.categorizedVideos);
+    return Object.keys(this.categorizedVideos$);
   }
 
-  groupVideosByCategory() {
-    this.categorizedVideos = {};
+  groupVideosByCategory(videos: any[]) {
+    const categorizedVideos: { [category: string]: any[] } = {};
 
-    this.videos.forEach((video) => {
-      const category = video.category; // Verwenden der einzelnen Kategorie als String
-
+    videos.forEach((video) => {
+      const category = video.category;
       if (category) {
-        // Sicherstellen, dass die Kategorie existiert
-        if (!this.categorizedVideos[category]) {
-          this.categorizedVideos[category] = [];
+        if (!categorizedVideos[category]) {
+          categorizedVideos[category] = [];
         }
-        this.categorizedVideos[category].push(video);
+        categorizedVideos[category].push(video);
       }
     });
 
-    // console.log('Categorized Videos:', this.categorizedVideos);
+    this.categorizedVideos$.next(categorizedVideos);
   }
 
   async getThumbnails() {
-    await this.apiService.getData('content/').then((response) => {
-      // Korrekt die URLs der Thumbnails extrahieren
-      this.thumbnails = response.data.map(
-        (video: any) => this.apiService.STATIC_BASE_URL + video.thumbnail
-      );
-      // console.log('Thumbnails:', this.thumbnails);
-      this.getLatestVideoThumbnails();
-    });
+    const response = await this.apiService.getData('content/');
+    const thumbnails = response.data.map(
+      (video: any) => this.apiService.STATIC_BASE_URL + video.thumbnail
+    );
+    this.thumbnails$.next(thumbnails);
+    this.getLatestVideoThumbnails(thumbnails);
   }
 
-  async getLatestVideoThumbnails() {
-    this.latestTumbnails = this.thumbnails
+  getLatestVideoThumbnails(thumbnails: any[]) {
+    const sortedThumbnails = thumbnails
+      .filter((video) => video.created_at) // Entfernt Objekte ohne created_at
       .sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.created_at || 0).getTime() -
+          new Date(a.created_at || 0).getTime()
       )
-      .slice(0, 6); // Die neuesten 6 Videos
-    // console.log('Latest Tumbnails:', this.latestTumbnails);
+      .slice(0, 6);
+
+    this.latestThumbnailsSubject.next(sortedThumbnails);
   }
 
-  setBackgroundVideo() {
-    if (this.videos.length > 0) {
-      const mostViewedVideo = this.videos.reduce(
+  setBackgroundVideo(videos: any[]) {
+    if (videos.length > 0) {
+      const mostViewedVideo = videos.reduce(
         (max, video) => (video.views > max.views ? video : max),
-        this.videos[0]
+        videos[0]
       );
-
-      this.backgroundVideoUrl =
-        this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file;
-      // console.log('Most Viewed Video:', this.backgroundVideoUrl);
+      this.backgroundVideoUrl$.next(
+        this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file
+      );
     }
   }
+
+  // Methode zum Setzen des ausgewählten Videos
+  setSelectedVideo(videoUrl: string | null) {
+    this.selectedVideoUrl$.next(videoUrl);
+  }
+
+  // Methode zum Wechseln der Qualität
+  changeQuality(quality: '360p' | '720p' | '1080p') {
+    this.currentQuality = quality;
+    this.selectedVideo = this.qualitySources[quality];
+    this.showQualityMenu = false; // Menü ausblenden nach Auswahl
+  }
+
+  // Methode zum Öffnen und Schließen des Qualitätsmenüs
+  toggleQualityMenu() {
+    this.showQualityMenu = !this.showQualityMenu;
+  }
+
+  // Methode zum Schließen des Video-Overlays
 }

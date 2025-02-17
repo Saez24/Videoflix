@@ -104,7 +104,7 @@ export class ApiService {
       });
 
       const responseData = await response.json();
-      console.log('Response Data:', responseData);
+      // console.log('Response Data:', responseData);
 
       return {
         ok: response.ok,

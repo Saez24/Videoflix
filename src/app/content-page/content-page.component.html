@@ -2,15 +2,13 @@
   <header>
     <div class="background">
       <video
-        class="background"
-        *ngIf="backgroundVideoUrl"
+        *ngIf="backgroundVideoUrl$ | async as videoUrl"
         autoplay
         loop
         muted
         playsinline
       >
-        <source [src]="backgroundVideoUrl" type="video/mp4" />
-        Dein Browser unterstützt kein HTML5-Video.
+        <source [src]="videoUrl" type="video/mp4" />
       </video>
     </div>
 
@@ -27,18 +25,25 @@
 
   <main class="content">
     <h3>New on Videoflix</h3>
-    <div class="thumbnails">
-      <div class="thumbnail" *ngFor="let thumbnail of latestTumbnails">
+    <div class="thumbnails" *ngIf="latestThumbnails$ | async as thumbnails">
+      <div
+        class="thumbnail"
+        *ngFor="let thumbnail of latestThumbnails$ | async"
+        (click)="setSelectedVideo(apiService.STATIC_BASE_URL + thumbnail)"
+      >
         <img [src]="thumbnail" alt="Video Thumbnail" />
       </div>
     </div>
     <!-- Anzeige für jede Kategorie -->
-    <div *ngFor="let category of getCategories()">
-      <h3>{{ category | capitalize }}</h3>
+    <div *ngFor="let category of categorizedVideos$ | async | keyvalue">
+      <h3>{{ category.key | capitalize }}</h3>
       <div class="thumbnails">
         <div
-          *ngFor="let video of categorizedVideos[category]"
+          *ngFor="let video of category.value"
           class="thumbnail"
+          (click)="
+            setSelectedVideo(apiService.STATIC_BASE_URL + video.video_file)
+          "
         >
           <img
             [src]="apiService.STATIC_BASE_URL + video.thumbnail"
@@ -49,3 +54,35 @@
     </div>
   </main>
 </section>
+
+<!-- Video-Overlay-Player (Einmalig einfügen) -->
+<div
+  class="video-player-overlay"
+  *ngIf="selectedVideoUrl$ | async as selectedVideo"
+>
+  <div class="video-container">
+    <button class="close-btn" (click)="setSelectedVideo(null)">X</button>
+
+    <!-- Video-Element -->
+    <video controls>
+      <source [src]="selectedVideo" type="video/mp4" />
+    </video>
+
+    <!-- Dropdown für die Videoqualität -->
+    <div class="quality-control">
+      <mat-icon fontIcon="home" (click)="toggleQualityMenu()">
+        Qualität: {{ currentQuality }}
+      </mat-icon>
+
+      <!-- Dropdown-Menü für Qualitätsoptionen -->
+      <div *ngIf="showQualityMenu" class="quality-menu">
+        <button
+          *ngFor="let quality of availableQualities"
+          (click)="changeQuality(quality)"
+        >
+          {{ quality }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
