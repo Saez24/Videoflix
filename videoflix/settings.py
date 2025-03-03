@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'profiles',
     'videoflix',
-    'content',
+    'content.apps.ContentConfig',
     'login',
     'django_filters',
     'admin_app',

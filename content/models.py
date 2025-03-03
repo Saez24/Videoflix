@@ -28,6 +28,10 @@ class Video(models.Model):
     video_file = models.FileField(upload_to='videos/', null=True, blank=True)
     thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
     category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='music')
+    hls_playlist = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.title
 
     def is_new(self):
         return date.today() - self.created_at <= timedelta(days=30)
