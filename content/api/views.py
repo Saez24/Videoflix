@@ -1,40 +1,35 @@
-from re import I
-from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
+from rest_framework.authtoken.views import  APIView
+from rest_framework.permissions import  AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from profiles.models import Profile
 from content.models import Video
 from .seriallizers import ContentSerializer
-from rest_framework import generics
-from rest_framework import status
-from rest_framework.exceptions import PermissionDenied, NotFound, ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.conf import settings
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
-import logging
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
-logger = logging.getLogger(__name__)
 
+@method_decorator(csrf_protect, name='dispatch')
 class ContentView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = ContentSerializer         
+    queryset = Video.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        try:         
+    def get(self, request, pk=None, format=None):
+        if pk:
+            video = get_object_or_404(Video, pk=pk)
+            serializer = ContentSerializer(video)
+            return Response(serializer.data)
+        
+        else:
             videos = Video.objects.all()
             serializer = ContentSerializer(videos, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        except Profile.DoesNotExist:
-            return Response({
-                "detail": "Profile not found"
-            }, status=status.HTTP_404_NOT_FOUND)
-        except PermissionDenied as e:
-            return Response({
-                "detail": str(e)
-            }, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:
-            logger.error(f"An error occurred: {str(e)}", exc_info=True)  # Log the error
-            return Response({
-                "detail": "An error occurred"
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(serializer.data)
         
     def post(self, request, *args, **kwargs):
+        # Dummy POST method
         return Response({"message": "POST request received"})
+        
