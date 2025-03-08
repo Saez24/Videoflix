@@ -28,10 +28,10 @@ def exportJson():
     subprocess.run(action)
     
 
-def convert720p(source):
-    new_file_name = source[:-4] + '_720p.mp4' # Alter name + _720p.mp4
-    cmd = 'ffmpeg -i "{}" -s hd720 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, new_file_name)
-    subprocess.run(cmd, capture_output=True)
+# def convert720p(source):
+#     new_file_name = source[:-4] + '_720p.mp4' # Alter name + _720p.mp4
+#     cmd = 'ffmpeg -i "{}" -s hd720 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, new_file_name)
+#     subprocess.run(cmd, capture_output=True)
 
 def create_base_directory(source):
     base_name = os.path.join(settings.MEDIA_ROOT, 'hls', os.path.basename(source).rsplit('.', 1)[0])
@@ -39,6 +39,7 @@ def create_base_directory(source):
     return base_name
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
+    print(f'Generating command for {quality}')
     return [
         'ffmpeg',
         '-i', source,
@@ -64,6 +65,7 @@ def convert_to_hls(source, video_id):
     """
     Converts source file to HLS with multiple quality levels and saves files in corresponding folder.
     """
+    print(f'Converting {source} to HLS')
     base_name = create_base_directory(source)
     
     for quality, (resolution, bitrate) in QUALITIES.items():
