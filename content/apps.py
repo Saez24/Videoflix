@@ -6,4 +6,5 @@ class ContentConfig(AppConfig):
     name = 'content'
 
     def ready(self):
-        from . import signals
+        import content.signals
+        print("ContentConfig ready method executed")

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from calendar import c
 import os
 from pathlib import Path
 from decouple import config
@@ -130,12 +131,25 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": config("REDIS_LOCATION"),
+        "PORT": config("REDIS_PORT"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
         "KEY_PREFIX": "videoflix"
     }
 }
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': config("REDIS_LOCATION"),
+        'PORT': config("REDIS_PORT"),
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 720,
+        'REDIS_CLIENT_KWARGS': { 
+        },
+    },
+}
+
 
 CACHE_TTL = 60 * 15
 

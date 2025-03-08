@@ -14,12 +14,18 @@ def video_post_save(sender, instance, created, **kwargs):
     """
     if created:
         queue = django_rq.get_queue('default', autocommit=True)
-        queue.enqueue(convert_to_hls, instance.video_file.path, instance.id)
-
+        # queue.enqueue(convert_to_hls, instance.video_file.path, instance.id)
 
 @receiver(post_delete, sender=Video)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    print('Video post delete signal')
-    if instance.video_file:
-        if os.isfile(instance.video_file.path):
-            os.remove(instance.video_file.path)
+        print("auto_delete_file_on_delete triggered")
+        if instance.video_file:
+            print(f"Video file path: {instance.video_file.path}")
+            if os.path.isfile(instance.video_file.path):
+                os.remove(instance.video_file.path)
+                print("Video file deleted")
+        if instance.thumbnail:
+            print(f"Thumbnail path: {instance.thumbnail.path}")
+            if os.path.isfile(instance.thumbnail.path):
+                os.remove(instance.thumbnail.path)
+                print("Thumbnail deleted")
