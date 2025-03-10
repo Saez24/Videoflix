@@ -3,8 +3,9 @@ from profiles.models import Profile
 from sub_profiles.models import SubProfile
 from content.models import Video
 from django.utils.html import format_html
-
-
+from django.db import transaction
+from django.utils.translation import gettext_lazy as _
+from django.contrib import messages
 
 # Proxy-Modelle erstellen
 class ProfileProxy(Profile):
@@ -42,6 +43,17 @@ class ContentProxy (Video):
 
 class ContentAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'description', 'created_at', 'thumbnail_preview', 'likes', 'dislikes', 'views', 'category')
+
+    def delete_model(self, request, obj):
+        """Stellt sicher, dass delete() aufgerufen wird und das Signal getriggert wird."""
+        obj.delete()
+
+    def delete_queryset(self, request, queryset):
+        # Jede Instanz einzeln löschen, um delete() zu triggern
+        with transaction.atomic():
+            for obj in queryset:
+                obj.delete()
+        self.message_user(request, _("Videos wurden erfolgreich gelöscht."), messages.SUCCESS)
 
     def thumbnail_preview(self, obj):
         if obj.thumbnail:

@@ -9,23 +9,16 @@ QUALITIES = {
 }
 
 def exportJson():
-    shell = [
-        'python', 'manage.py', 'shell'
-    ]
-    imp = [
-        'from', 'core.admin', 'import', 'VideoResource'
-    ]
-    data = [
-        'dataset', '=', 'VideoResource().export()'
-    ]
-    action = [
-        'print(dataset.json)'
-        'dataset.json', '>', 'exportJson.txt'
-    ]
-    subprocess.run(shell)
-    subprocess.run(imp)
-    subprocess.run(data)
-    subprocess.run(action)
+    cmd = """
+    python3 manage.py shell <<EOF
+    from core.admin import VideoResource
+    dataset = VideoResource().export()
+    with open("exportJson.txt", "w") as f:
+        f.write(dataset.json)
+    EOF
+    """
+    subprocess.run(cmd, shell=True, text=True)
+
     
 
 # def convert720p(source):
@@ -34,9 +27,10 @@ def exportJson():
 #     subprocess.run(cmd, capture_output=True)
 
 def create_base_directory(source):
-    base_name = os.path.join(settings.MEDIA_ROOT, 'hls', os.path.basename(source).rsplit('.', 1)[0])
+    base_name = os.path.join(settings.MEDIA_ROOT, 'videos', 'hls', os.path.basename(source).rsplit('.', 1)[0])
     os.makedirs(base_name, exist_ok=True)
     return base_name
+
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
     print(f'Generating command for {quality}')
