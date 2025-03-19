@@ -48,7 +48,7 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
         '-c:a', 'aac',
         '-strict', '-2',
         '-f', 'hls',
-        '-hls_time', '10',
+        '-hls_time', '5',
         '-hls_playlist_type', 'vod',
         '-hls_segment_filename', f'{base_name}/{quality}_%03d.ts',
         f'{base_name}/{quality}.m3u8'

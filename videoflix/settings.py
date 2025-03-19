@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'admin_app',
     'sub_profiles',
     'registration',
+    'django_rq',
 ]
 
 MIDDLEWARE = [

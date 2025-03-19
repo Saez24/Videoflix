@@ -61,6 +61,7 @@ class ContentAdmin(admin.ModelAdmin):
         return "Kein Thumbnail"
     
     thumbnail_preview.short_description = 'Thumbnail Vorschau'
+    
 
 
 # Registrierung der Proxy-Modelle
