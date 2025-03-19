@@ -127,11 +127,14 @@ DATABASES = {
     }
 }
 
+redis_port_raw = config("REDIS_PORT", default="6379")  # Standard: 6379
+redis_port = redis_port_raw.split("/")[0]  # Nimmt nur den Teil vor dem "/"
+redis_db = redis_port_raw.split("/")[1] if "/" in redis_port_raw else "0"  # Falls "/1", dann DB=1, sonst DB=0
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config("REDIS_LOCATION"),
-        "PORT": config("REDIS_PORT"),
+        "LOCATION": f"redis://{config('REDIS_LOCATION')}:{redis_port}/{redis_db}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -142,11 +145,10 @@ CACHES = {
 RQ_QUEUES = {
     'default': {
         'HOST': config("REDIS_LOCATION"),
-        'PORT': config("REDIS_PORT"),
-        'DB': 0,
+        'PORT': int(redis_port),  # Hier sicherstellen, dass es ein int ist
+        'DB': int(redis_db),  # Falls nötig
         'DEFAULT_TIMEOUT': 720,
-        'REDIS_CLIENT_KWARGS': { 
-        },
+        'REDIS_CLIENT_KWARGS': {},
     },
 }
 
