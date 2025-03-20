@@ -6,6 +6,9 @@ from django.utils.html import format_html
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
+from django_rq.queues import get_queue
+from django_rq.models import Queue
+from django_rq.admin import QueueAdmin
 
 # Proxy-Modelle erstellen
 class ProfileProxy(Profile):
@@ -68,6 +71,8 @@ class ContentAdmin(admin.ModelAdmin):
 admin.site.register(ProfileProxy, ProfileAdmin)
 admin.site.register(SubProfileProxy, SubProfileAdmin)
 admin.site.register(ContentProxy, ContentAdmin)
+admin.site.register(Queue, QueueAdmin)
+
 
 
 # Admin-Panel Einstellungen
