@@ -60,11 +60,6 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
         f'{base_name}/{quality}.m3u8'
     ]
 
-def check_video_file(source):
-    cmd = ['ffmpeg', '-v', 'error', '-i', source, '-f', 'null', '-']
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise Exception(f'Invalid video file: {result.stderr}')
 
 def convert_to_hls(source, video_id):
     """
@@ -76,8 +71,7 @@ def convert_to_hls(source, video_id):
     try:
         for quality, (resolution, bitrate) in QUALITIES.items():
             cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            print(result.stdout) 
+            subprocess.run(cmd, capture_output=True, text=True)
 
             video = Video.objects.get(id=video_id)
             video.hls_playlist = os.path.join(base_name, 'playlist.m3u8')
