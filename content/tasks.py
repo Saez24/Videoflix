@@ -2,7 +2,11 @@ import os
 import subprocess
 from django.conf import settings
 
+from content.models import Video
+
 QUALITIES = {
+    '1080p': ('1920x1080', '5000k'),
+    '720p': ('1280x720', '2800k'),
     '480p': ('854x480', '1400k')
 }
 
@@ -53,14 +57,30 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
         f'{base_name}/{quality}.m3u8'
     ]
 
+def check_video_file(source):
+    cmd = ['ffmpeg', '-v', 'error', '-i', source, '-f', 'null', '-']
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise Exception(f'Invalid video file: {result.stderr}')
 
 def convert_to_hls(source, video_id):
+    check_video_file(source)
     """
     Converts source file to HLS with multiple quality levels and saves files in corresponding folder.
     """
     print(f'Converting {source} to HLS')
     base_name = create_base_directory(source)
     
-    for quality, (resolution, bitrate) in QUALITIES.items():
-        cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
-        subprocess.run(cmd)    
+    try:
+        for quality, (resolution, bitrate) in QUALITIES.items():
+            cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            print(result.stdout) 
+
+            video = Video.objects.get(id=video_id)
+            video.hls_playlist = os.path.join(base_name, 'playlist.m3u8')
+            video.save() 
+
+    except Exception as e:
+        print(f'Error saving HLS playlist: {str(e)}')
+        raise
