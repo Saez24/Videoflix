@@ -3,8 +3,6 @@ import subprocess
 from django.conf import settings
 
 QUALITIES = {
-    '1080p': ('1920x1080', '5000k'),
-    '720p': ('1280x720', '2800k'),
     '480p': ('854x480', '1400k')
 }
 
@@ -37,6 +35,7 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
     return [
         'ffmpeg',
         '-i', source,
+        '-threads', '2',
         '-preset', 'fast',
         '-g', '48',
         '-sc_threshold', '0',
