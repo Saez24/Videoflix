@@ -1,7 +1,6 @@
 import os
 import subprocess
 from django.conf import settings
-
 from content.models import Video
 
 QUALITIES = {
@@ -10,16 +9,24 @@ QUALITIES = {
     '480p': ('854x480', '1400k')
 }
 
-def exportJson():
-    cmd = """
-    python3 manage.py shell <<EOF
-    from core.admin import VideoResource
-    dataset = VideoResource().export()
-    with open("exportJson.txt", "w") as f:
-        f.write(dataset.json)
-    EOF
-    """
-    subprocess.run(cmd, shell=True, text=True)
+# def exportJson():
+#     shell = [
+#         'python3', 'manage.py', 'shell'
+#     ]
+#     imp = [
+#         'from', 'core.admin', 'import', 'VideoResource'
+#     ]
+#     data = [
+#         'dataset', '=', 'VideoResource().export()'
+#     ]
+#     action = [
+#         'print(dataset.json)'
+#         'dataset.json', '>', 'exportJson.txt'
+#     ]
+#     subprocess.run(shell)
+#     subprocess.run(imp)
+#     subprocess.run(data)
+#     subprocess.run(action)
 
     
 
@@ -35,14 +42,10 @@ def create_base_directory(source):
 
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
-    print(f'Generating command for {quality}')
-    print(f'Base name: {base_name}')
-    print(f'Resolution: {resolution}')
-    print(f'Bitrate: {bitrate}')
+
     return [
         'ffmpeg',
         '-i', source,
-        '-threads', '2',
         '-preset', 'fast',
         '-g', '48',
         '-sc_threshold', '0',
@@ -59,6 +62,7 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
         '-hls_segment_filename', f'{base_name}/{quality}_%03d.ts',
         f'{base_name}/{quality}.m3u8'
     ]
+  
 
 
 def convert_to_hls(source, video_id):
@@ -71,7 +75,11 @@ def convert_to_hls(source, video_id):
     try:
         for quality, (resolution, bitrate) in QUALITIES.items():
             cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
-            subprocess.run(cmd, capture_output=True, text=True)
+            print(f'Running command: {" ".join(cmd)}')
+            
+            subprocess.run(cmd, capture_output=True)
+
+            print(f'Command executed for {quality}')
 
             video = Video.objects.get(id=video_id)
             video.hls_playlist = os.path.join(base_name, 'playlist.m3u8')
