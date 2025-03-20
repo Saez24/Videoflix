@@ -36,6 +36,9 @@ def create_base_directory(source):
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
     print(f'Generating command for {quality}')
+    print(f'Base name: {base_name}')
+    print(f'Resolution: {resolution}')
+    print(f'Bitrate: {bitrate}')
     return [
         'ffmpeg',
         '-i', source,
@@ -64,7 +67,6 @@ def check_video_file(source):
         raise Exception(f'Invalid video file: {result.stderr}')
 
 def convert_to_hls(source, video_id):
-    check_video_file(source)
     """
     Converts source file to HLS with multiple quality levels and saves files in corresponding folder.
     """
