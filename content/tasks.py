@@ -1,7 +1,6 @@
 import os
 import subprocess
 from django.conf import settings
-
 from content.models import Video
 
 QUALITIES = {
@@ -21,23 +20,17 @@ def exportJson():
     """
     subprocess.run(cmd, shell=True, text=True)
 
-    
-
-# def convert720p(source):
-#     new_file_name = source[:-4] + '_720p.mp4' # Alter name + _720p.mp4
-#     cmd = 'ffmpeg -i "{}" -s hd720 -c:v libx264 -crf 23 -c:a aac -strict -2 "{}"'.format(source, new_file_name)
-#     subprocess.run(cmd, capture_output=True)
-
 def create_base_directory(source):
     base_name = os.path.join(settings.MEDIA_ROOT, 'videos', 'hls', os.path.basename(source).rsplit('.', 1)[0])
     os.makedirs(base_name, exist_ok=True)
     return base_name
 
-
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
+    # Vollständiger Pfad zu ffmpeg (falls erforderlich)
+    ffmpeg_path = '/usr/bin/ffmpeg'  # Ändern Sie dies, falls ffmpeg an einem anderen Ort installiert ist
 
     cmd = [
-        'ffmpeg',
+        ffmpeg_path,
         '-i', source,
         '-preset', 'fast',
         '-g', '48',
@@ -55,9 +48,7 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
         '-hls_segment_filename', f'{base_name}/{quality}_%03d.ts',
         f'{base_name}/{quality}.m3u8'
     ]
-
     return cmd
-
 
 def convert_to_hls(source, video_id):
     """
@@ -69,25 +60,36 @@ def convert_to_hls(source, video_id):
     try:
         for quality, (resolution, bitrate) in QUALITIES.items():
             cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
-            print(f'Running command: {cmd}')
-            subprocess.run(" ".join(cmd), shell=False, text=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(f'Finished converting {source} to HLS')
+            print(f'Running command: {" ".join(cmd)}')  # Zur Debugging-Zwecken den Befehl als String anzeigen
 
+            # Führen Sie den Befehl aus und erfassen Sie die Ausgabe
+            result = subprocess.run(cmd, shell=False, text=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            # Ausgabe und Fehlermeldungen anzeigen
+            print(f'STDOUT: {result.stdout}')
+            print(f'STDERR: {result.stderr}')
+
+            print(f'Finished converting {source} to {quality} HLS')
+
+            # Speichern Sie die HLS-Playlist in der Datenbank
             video = Video.objects.get(id=video_id)
             video.hls_playlist = os.path.join(base_name, 'playlist.m3u8')
-            video.save() 
+            video.save()
 
-            delete_mp4(source)
+        # Lösche die ursprüngliche MP4-Datei
+        delete_mp4(source)
 
+    except subprocess.CalledProcessError as e:
+        print(f'Error during conversion: {e.stderr}')
+        raise
     except Exception as e:
         print(f'Error saving HLS playlist: {str(e)}')
         raise
 
-def delete_mp4(source,):
+def delete_mp4(source):
     """
     This function deletes the mp4 file that is created for creating the HLS files.
     """
     if os.path.exists(source):
         os.remove(source)
         print(f'{source} deleted')
-   
