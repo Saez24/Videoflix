@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+import rq
 from registration.api.views import VerifyEmailView
 from django.urls import include
 
@@ -31,5 +32,6 @@ urlpatterns = [
     path('api/content/', include('content.api.urls')),
     path('api/sub_profiles/', include('sub_profiles.api.urls')),
     path('api/registration/verify/<uidb64>/<token>/', VerifyEmailView.as_view(), name='verify-email'),
-    path('django-rq/', include('django_rq.urls'))    
+    path('django-rq/', include('django_rq.urls')), 
+    path('rq/', include('django_rq.urls')),   
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
