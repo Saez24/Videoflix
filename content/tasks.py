@@ -1,6 +1,5 @@
 import os
 import subprocess
-import shutil
 from django.conf import settings
 
 from content.models import Video
@@ -36,10 +35,7 @@ def create_base_directory(source):
 
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
-    print(f'Generating command for {quality}')
-    print(f'Base name: {base_name}')
-    print(f'Resolution: {resolution}')
-    print(f'Bitrate: {bitrate}')
+
     return [
         'ffmpeg',
         '-i', source,
@@ -72,6 +68,7 @@ def convert_to_hls(source, video_id):
     try:
         for quality, (resolution, bitrate) in QUALITIES.items():
             cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
+            print(f'Running command: {cmd}')
             subprocess.run(cmd, capture_output=True, text=True)
 
             video = Video.objects.get(id=video_id)

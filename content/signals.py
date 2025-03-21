@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, post_delete
 from content.models import Video
 from django.dispatch import receiver
 import django_rq
-from .tasks import convert_to_hls, delete_video_folder, delete_thumbnail_folder
+from .tasks import convert_to_hls
 
 print('Signals loaded')
 
