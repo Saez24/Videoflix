@@ -25,6 +25,23 @@ def create_base_directory(source):
     os.makedirs(base_name, exist_ok=True)
     return base_name
 
+def create_master_playlist(base_name, qualities):
+    """
+    Erstellt eine Master-Playlist-Datei, die alle Qualitäten enthält.
+    """
+    master_playlist_path = os.path.join(base_name, 'playlist.m3u8')
+    with open(master_playlist_path, 'w') as f:
+        f.write("#EXTM3U\n")
+        f.write("#EXT-X-VERSION:3\n")
+
+        for quality, (resolution, bitrate) in qualities.items():
+            bandwidth = int(bitrate[:-1]) * 1000  # Konvertiere z. B. '5000k' zu 5000000
+            f.write(f"#EXT-X-STREAM-INF:BANDWIDTH={bandwidth},RESOLUTION={resolution}\n")
+            f.write(f"{quality}.m3u8\n")
+
+    print(f'Master playlist created at {master_playlist_path}')
+    return master_playlist_path
+
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
     # Vollständiger Pfad zu ffmpeg (falls erforderlich)
     ffmpeg_path = '/usr/bin/ffmpeg'  # Ändern Sie dies, falls ffmpeg an einem anderen Ort installiert ist
@@ -71,9 +88,11 @@ def convert_to_hls(source, video_id):
 
             print(f'Finished converting {source} to {quality} HLS')
 
+            master_playlist_path = create_master_playlist(base_name, QUALITIES)
+
             # Speichern Sie die HLS-Playlist in der Datenbank
             video = Video.objects.get(id=video_id)
-            video.hls_playlist = os.path.join(base_name, 'playlist.m3u8')
+            video.hls_playlist = master_playlist_path
             video.save()
 
         # Lösche die ursprüngliche MP4-Datei
