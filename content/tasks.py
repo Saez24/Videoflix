@@ -36,10 +36,9 @@ def create_base_directory(source):
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
 
-    return [
+    cmd = [
         'ffmpeg',
         '-i', source,
-        '-threads', '2',
         '-preset', 'fast',
         '-g', '48',
         '-sc_threshold', '0',
@@ -56,6 +55,8 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
         '-hls_segment_filename', f'{base_name}/{quality}_%03d.ts',
         f'{base_name}/{quality}.m3u8'
     ]
+
+    return cmd
 
 
 def convert_to_hls(source, video_id):
