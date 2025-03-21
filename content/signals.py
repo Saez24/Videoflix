@@ -3,7 +3,6 @@ from django.db.models.signals import post_save, post_delete
 from content.models import Video
 from django.dispatch import receiver
 import django_rq
-import rq
 from .tasks import convert_to_hls
 
 print('Signals loaded')
@@ -14,7 +13,7 @@ def video_post_save(sender, instance, created, **kwargs):
     Sends variables to tasks.py to format through RQ Worker
     """
     if created:
-        queue = rq.get_queue('default', autocommit=True)
+        queue = django_rq.get_queue('default')
         queue.enqueue(convert_to_hls, instance.video_file.path, instance.id, job_timeout=360, result_ttl=0)
 
 @receiver(post_delete, sender=Video)

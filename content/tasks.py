@@ -70,7 +70,7 @@ def convert_to_hls(source, video_id):
         for quality, (resolution, bitrate) in QUALITIES.items():
             cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
             print(f'Running command: {cmd}')
-            subprocess.run(" ".join(cmd), shell=True, text=True, check=True)
+            subprocess.run(" ".join(cmd), shell=False, text=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(f'Finished converting {source} to HLS')
 
             video = Video.objects.get(id=video_id)
