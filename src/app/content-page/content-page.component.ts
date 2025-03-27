@@ -59,10 +59,12 @@ export class ContentPageComponent implements OnInit {
   // }
 
   async getVideos() {
-    const response = await this.apiService.getData('content/');
+    const response = await this.apiService.getData(this.apiService.CONTENT_URL);
+
     this.videos$.next(response.data);
     this.groupVideosByCategory(response.data);
     this.setBackgroundVideo(response.data);
+    console.log(response.data);
   }
 
   getCategories(): string[] {
@@ -86,7 +88,7 @@ export class ContentPageComponent implements OnInit {
   }
 
   async getThumbnails() {
-    const response = await this.apiService.getData('content/');
+    const response = await this.apiService.getData(this.apiService.CONTENT_URL);
     const thumbnails = response.data.map(
       (video: any) => this.apiService.STATIC_BASE_URL + video.thumbnail
     );
@@ -122,6 +124,7 @@ export class ContentPageComponent implements OnInit {
   // Methode zum Setzen des ausgewählten Videos
   setSelectedVideo(videoUrl: string | null) {
     this.selectedVideoUrl$.next(videoUrl);
+    console.log('Selected Video:', videoUrl);
   }
 
   // Methode zum Wechseln der Qualität

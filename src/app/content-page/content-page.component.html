@@ -42,7 +42,7 @@
           *ngFor="let video of category.value"
           class="thumbnail"
           (click)="
-            setSelectedVideo(apiService.STATIC_BASE_URL + video.video_file)
+            setSelectedVideo(apiService.STATIC_BASE_URL + video.hls_playlist)
           "
         >
           <img

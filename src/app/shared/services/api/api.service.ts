@@ -14,13 +14,13 @@ export interface ApiResponse<T> {
 export class ApiService {
   constructor() {}
 
-  API_BASE_URL = 'http://127.0.0.1:8000/api/';
-  STATIC_BASE_URL = 'http://127.0.0.1:8000/';
+  API_BASE_URL = 'https://videoflix-aws-backend.your-developer.com/api/';
+  STATIC_BASE_URL = 'https://videoflix-aws-backend.your-developer.com';
   LOGIN_URL = 'login/';
   REGISTER_URL = 'registration/';
   PROFILE_URL = 'profiles/';
   SUB_PROFILE_URL = 'sub_profiles/';
-  CONTENT_URL = 'content/';
+  CONTENT_URL = 'content/videos/';
 
   setAuthCredentials(token: string, userId: string, email: string): void {
     localStorage.setItem('auth-token', token);
