@@ -40,7 +40,7 @@ def create_master_playlist(base_name, qualities):
             f.write(f"{quality}.m3u8\n")
 
     print(f'Master playlist created at {master_playlist_path}')
-    return master_playlist_path
+    return os.path.relpath(master_playlist_path, settings.MEDIA_ROOT)
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
     # Vollständiger Pfad zu ffmpeg (falls erforderlich)
