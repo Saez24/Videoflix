@@ -5,7 +5,7 @@ import { ApiService } from '../shared/services/api/api.service';
 import { AsyncPipe, KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
 import { AuthService } from '../shared/services/authentication/auth.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-content-page',
@@ -34,29 +34,11 @@ export class ContentPageComponent implements OnInit {
   latestThumbnails$ = this.latestThumbnailsSubject.asObservable();
   categorizedVideos$ = new BehaviorSubject<{ [category: string]: any[] }>({});
   selectedVideoUrl$ = new BehaviorSubject<string | null>(null);
-  currentQuality = '720p'; // Standardqualität
-  selectedVideo: string | null = null; // Das aktuell ausgewählte Video
-  showQualityMenu = false; // Steuerung der Sichtbarkeit des Qualitätsmenüs
-  availableQualities: ('360p' | '720p' | '1080p')[] = ['360p', '720p', '1080p'];
-
-  // Hier definierst du die Videoquellen für jede Qualität
-  qualitySources: { [key in '360p' | '720p' | '1080p']: string } = {
-    '360p': 'path_to_video_360p.mp4',
-    '720p': 'path_to_video_720p.mp4',
-    '1080p': 'path_to_video_1080p.mp4',
-  };
 
   ngOnInit() {
     this.getVideos();
     this.getThumbnails();
   }
-
-  // ngAfterViewInit() {
-  //   // this.apiService.getAuthUser();
-  //   // this.apiService.getAuthUserId();
-  //   this.getVideos();
-  //   this.getThumbnails();
-  // }
 
   async getVideos() {
     const response = await this.apiService.getData(this.apiService.CONTENT_URL);
@@ -121,23 +103,8 @@ export class ContentPageComponent implements OnInit {
     }
   }
 
-  // Methode zum Setzen des ausgewählten Videos
   setSelectedVideo(videoUrl: string | null) {
     this.selectedVideoUrl$.next(videoUrl);
     console.log('Selected Video:', videoUrl);
   }
-
-  // Methode zum Wechseln der Qualität
-  changeQuality(quality: '360p' | '720p' | '1080p') {
-    this.currentQuality = quality;
-    this.selectedVideo = this.qualitySources[quality];
-    this.showQualityMenu = false; // Menü ausblenden nach Auswahl
-  }
-
-  // Methode zum Öffnen und Schließen des Qualitätsmenüs
-  toggleQualityMenu() {
-    this.showQualityMenu = !this.showQualityMenu;
-  }
-
-  // Methode zum Schließen des Video-Overlays
 }

@@ -42,7 +42,10 @@
           *ngFor="let video of category.value"
           class="thumbnail"
           (click)="
-            setSelectedVideo(apiService.STATIC_BASE_URL + video.hls_playlist)
+            setSelectedVideo(
+              apiService.STATIC_BASE_URL +
+                (video.hls_playlist ? video.hls_playlist : video.video_file)
+            )
           "
         >
           <img
@@ -67,22 +70,5 @@
     <video controls>
       <source [src]="selectedVideo" type="video/mp4" />
     </video>
-
-    <!-- Dropdown für die Videoqualität -->
-    <div class="quality-control">
-      <mat-icon fontIcon="home" (click)="toggleQualityMenu()">
-        Qualität: {{ currentQuality }}
-      </mat-icon>
-
-      <!-- Dropdown-Menü für Qualitätsoptionen -->
-      <div *ngIf="showQualityMenu" class="quality-menu">
-        <button
-          *ngFor="let quality of availableQualities"
-          (click)="changeQuality(quality)"
-        >
-          {{ quality }}
-        </button>
-      </div>
-    </div>
   </div>
 </div>
