@@ -77,23 +77,23 @@ def convert_to_hls(source, video_id):
     try:
         for quality, (resolution, bitrate) in QUALITIES.items():
             cmd = generate_ffmpeg_command(source, base_name, quality, resolution, bitrate)
-            print(f'Running command: {" ".join(cmd)}')  # Zur Debugging-Zwecken den Befehl als String anzeigen
-
-            # Führen Sie den Befehl aus und erfassen Sie die Ausgabe
+            print(f'Running command: {" ".join(cmd)}')
             result = subprocess.run(cmd, shell=False, text=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            
-            # Ausgabe und Fehlermeldungen anzeigen
             print(f'STDOUT: {result.stdout}')
             print(f'STDERR: {result.stderr}')
-
             print(f'Finished converting {source} to {quality} HLS')
 
-            master_playlist_path = create_master_playlist(base_name, QUALITIES)
+        # Erstelle Master Playlist
+        create_master_playlist(base_name, QUALITIES)
 
-            # Speichern Sie die HLS-Playlist in der Datenbank
-            video = Video.objects.get(id=video_id)
-            video.hls_playlist = os.path.relpath(master_playlist_path, settings.MEDIA_ROOT)  # Beispiel: 'media/videos/hls/playlist.m3u8'
-            video.save()
+        # Speichere den korrekten Pfad in der Datenbank (ohne "../")
+        video = Video.objects.get(id=video_id)
+        video.hls_playlist = '/' + os.path.join(
+            'media', 'videos', 'hls', 
+            os.path.basename(source).rsplit('.', 1)[0], 
+            'playlist.m3u8'
+        )
+        video.save()
 
         # Lösche die ursprüngliche MP4-Datei
         delete_mp4(source)
