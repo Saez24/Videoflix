@@ -92,7 +92,7 @@ def convert_to_hls(source, video_id):
 
             # Speichern Sie die HLS-Playlist in der Datenbank
             video = Video.objects.get(id=video_id)
-            video.hls_playlist = master_playlist_path
+            video.hls_playlist = os.path.join('media', 'videos', 'hls', os.path.basename(master_playlist_path))  # Beispiel: 'media/videos/hls/playlist.m3u8'
             video.save()
 
         # Lösche die ursprüngliche MP4-Datei
