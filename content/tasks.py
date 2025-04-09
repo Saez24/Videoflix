@@ -29,7 +29,7 @@ def create_master_playlist(base_name, qualities):
     """
     Erstellt eine Master-Playlist-Datei, die alle Qualitäten enthält.
     """
-    master_playlist_path = os.path.join('playlist.m3u8')
+    master_playlist_path = os.path.join(base_name, 'playlist.m3u8')
     with open(master_playlist_path, 'w') as f:
         f.write("#EXTM3U\n")
         f.write("#EXT-X-VERSION:3\n")
@@ -92,7 +92,7 @@ def convert_to_hls(source, video_id):
 
             # Speichern Sie die HLS-Playlist in der Datenbank
             video = Video.objects.get(id=video_id)
-            video.hls_playlist = os.path.join('media', 'videos', 'hls', os.path.basename(master_playlist_path))  # Beispiel: 'media/videos/hls/playlist.m3u8'
+            video.hls_playlist = os.path.relpath(master_playlist_path, settings.MEDIA_ROOT)  # Beispiel: 'media/videos/hls/playlist.m3u8'
             video.save()
 
         # Lösche die ursprüngliche MP4-Datei
