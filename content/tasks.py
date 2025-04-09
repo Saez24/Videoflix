@@ -29,7 +29,7 @@ def create_master_playlist(base_name, qualities):
     """
     Erstellt eine Master-Playlist-Datei, die alle Qualitäten enthält.
     """
-    master_playlist_path = os.path.join(base_name, 'playlist.m3u8')
+    master_playlist_path = os.path.join('playlist.m3u8')
     with open(master_playlist_path, 'w') as f:
         f.write("#EXTM3U\n")
         f.write("#EXT-X-VERSION:3\n")
