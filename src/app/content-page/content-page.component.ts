@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { ApiService } from '../shared/services/api/api.service';
@@ -6,6 +12,7 @@ import { AsyncPipe, KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
 import { AuthService } from '../shared/services/authentication/auth.service';
 import { BehaviorSubject } from 'rxjs';
+import videojs from 'video.js';
 
 @Component({
   selector: 'app-content-page',
@@ -24,7 +31,8 @@ import { BehaviorSubject } from 'rxjs';
   styleUrl: './content-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContentPageComponent implements OnInit {
+export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
+  private player: any;
   constructor(public apiService: ApiService, public authService: AuthService) {}
 
   videos$ = new BehaviorSubject<any[]>([]);
@@ -38,6 +46,20 @@ export class ContentPageComponent implements OnInit {
   ngOnInit() {
     this.getVideos();
     this.getThumbnails();
+  }
+
+  ngAfterViewInit() {
+    this.selectedVideoUrl$.subscribe((url) => {
+      if (url) {
+        setTimeout(() => this.initVideoPlayer(url), 0); // sicherstellen, dass DOM fertig
+      } else {
+        this.disposePlayer();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.disposePlayer();
   }
 
   async getVideos() {
@@ -106,5 +128,34 @@ export class ContentPageComponent implements OnInit {
   setSelectedVideo(videoUrl: string | null) {
     this.selectedVideoUrl$.next(videoUrl);
     console.log('Selected Video:', videoUrl);
+  }
+
+  initVideoPlayer(url: string) {
+    const videoElement = document.getElementById(
+      'videoPlayer'
+    ) as HTMLVideoElement;
+    if (!videoElement) return;
+
+    this.disposePlayer(); // vorherigen Player entfernen
+
+    this.player = videojs(videoElement, {
+      autoplay: false,
+      controls: true,
+      responsive: true,
+      fluid: true,
+      sources: [
+        {
+          src: url,
+          type: 'application/x-mpegURL', // für HLS (m3u8)
+        },
+      ],
+    });
+  }
+
+  disposePlayer() {
+    if (this.player) {
+      this.player.dispose();
+      this.player = null;
+    }
   }
 }
