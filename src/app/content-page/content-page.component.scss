@@ -144,3 +144,119 @@ app-root .logo {
     }
   }
 }
+
+.vjs-quality-selector .vjs-icon-placeholder:before {
+  content: "\f110";
+  font-family: VideoJS;
+  font-size: 1.8em;
+  line-height: 1.67;
+}
+
+.vjs-quality-selector .vjs-menu {
+  width: auto;
+  left: -5em;
+}
+
+.vjs-quality-selector .vjs-menu-content {
+  width: auto;
+}
+
+/* Quality Selector Button Styling */
+.vjs-quality-button {
+  cursor: pointer;
+  font-family: VideoJS;
+
+  .vjs-icon-quality:before {
+    content: "\f110";
+    font-size: 1.8em;
+    line-height: 1.67;
+  }
+}
+
+/* Quality Menu Styling */
+.vjs-quality-menu {
+  width: auto !important;
+
+  .vjs-menu-content {
+    background-color: rgba(43, 51, 63, 0.9) !important;
+
+    .vjs-menu-item {
+      text-transform: none;
+      font-size: 1em;
+
+      &.vjs-selected {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+      }
+    }
+  }
+}
+
+.vjs-quality-selector .vjs-icon-quality {
+  font-family: VideoJS;
+  font-size: 1.8em;
+  line-height: 1.67;
+}
+
+.vjs-quality-selector .vjs-menu {
+  width: auto !important;
+  left: -5em;
+}
+
+.vjs-quality-selector .vjs-menu-content {
+  width: auto !important;
+}
+
+.vjs-menu-item-text {
+  padding: 0.5em 1em;
+  white-space: nowrap;
+}
+
+.vjs-selected .vjs-menu-item-text {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Quality Selector Styles */
+.vjs-quality-selector {
+  cursor: pointer;
+  font-family: VideoJS;
+
+  .vjs-icon-quality {
+    &:before {
+      content: "\f110";
+      font-size: 1.8em;
+      line-height: 1.67;
+    }
+  }
+}
+
+.vjs-quality-menu {
+  width: auto !important;
+  left: -5em;
+
+  .vjs-menu-content {
+    width: auto !important;
+    background-color: rgba(43, 51, 63, 0.9);
+
+    .vjs-menu-item {
+      text-transform: none;
+      font-size: 1em;
+      color: #ccc;
+
+      &.vjs-selected {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-weight: bold;
+      }
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+/* Ensure control bar has enough space */
+.vjs-control-bar {
+  display: flex !important;
+}

@@ -13,6 +13,8 @@ import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
 import { AuthService } from '../shared/services/authentication/auth.service';
 import { BehaviorSubject } from 'rxjs';
 import videojs from 'video.js';
+import qualityLevels from 'videojs-contrib-quality-levels';
+import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
 
 @Component({
   selector: 'app-content-page',
@@ -77,7 +79,6 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.videos$.next(response.data);
     this.groupVideosByCategory(response.data);
     this.setBackgroundVideo(response.data);
-    console.log(response.data);
   }
 
   getCategories(): string[] {
@@ -136,29 +137,138 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   setSelectedVideo(videoUrl: string | null) {
     this.selectedVideoUrl$.next(videoUrl);
-    console.log('Selected Video:', videoUrl);
   }
 
   initVideoPlayer(url: string) {
+    this.disposePlayer();
+
     const videoElement = document.getElementById(
       'videoPlayer'
     ) as HTMLVideoElement;
     if (!videoElement) return;
-
-    this.disposePlayer(); // vorherigen Player entfernen
 
     this.player = videojs(videoElement, {
       autoplay: false,
       controls: true,
       responsive: true,
       fluid: true,
+      html5: {
+        vhs: {
+          overrideNative: true,
+        },
+      },
       sources: [
         {
           src: url,
-          type: 'application/x-mpegURL', // für HLS (m3u8)
+          type: 'application/x-mpegURL',
         },
       ],
     });
+
+    // Warte auf das 'loadedmetadata' Event
+    this.player.on('loadedmetadata', () => {
+      this.setupQualitySelectorWithRetry();
+    });
+  }
+
+  setupQualitySelectorWithRetry(attempt = 0) {
+    const MAX_ATTEMPTS = 5;
+    const RETRY_DELAY = 500;
+
+    const qualityLevels = this.player.qualityLevels();
+    const levelsArray = Array.from(qualityLevels) as QualityLevel[];
+
+    if (levelsArray.length > 0) {
+      this.setupQualitySelector();
+    } else if (attempt < MAX_ATTEMPTS) {
+      setTimeout(() => {
+        this.setupQualitySelectorWithRetry(attempt + 1);
+      }, RETRY_DELAY);
+    } else {
+      console.warn('No quality levels available after retries', qualityLevels);
+    }
+  }
+
+  setupQualitySelector() {
+    const qualityLevels = this.player.qualityLevels();
+    const levelsArray = Array.from(qualityLevels);
+
+    // Erstelle das Menü
+    const MenuButton = videojs.getComponent('MenuButton');
+    const qualityMenuButton = new MenuButton(this.player, {
+      className: 'vjs-quality-selector',
+    });
+
+    // Custom Icon hinzufügen
+    const icon = videojs.dom.createEl('span', {
+      className: 'vjs-icon-quality',
+      innerHTML: '&#x2699;', // Zahnrad-Icon
+    });
+    qualityMenuButton.el().appendChild(icon);
+
+    const Menu = videojs.getComponent('Menu');
+    const qualityMenu = new Menu(this.player);
+
+    // Finde die aktuell aktive Qualitätsstufe
+    const activeIndex = levelsArray.findIndex(
+      (level) => (level as QualityLevel).enabled_
+    );
+
+    levelsArray.forEach((level, index) => {
+      const MenuItem = videojs.getComponent('MenuItem');
+      const menuItem = new MenuItem(this.player, {
+        className: 'vjs-menu-item-selectable',
+        // selectable: true, // Removed as it's not recognized
+      });
+
+      // Label erstellen
+      const label = this.getQualityLabel(level);
+      const labelEl = videojs.dom.createEl('div', {
+        className: 'vjs-menu-item-text',
+        textContent: label,
+      });
+      menuItem.el().appendChild(labelEl);
+
+      // Aktive Stufe markieren
+      if (index === activeIndex) {
+        menuItem.addClass('vjs-selected');
+      }
+
+      menuItem.on('click', () => {
+        // Alle Stufen deaktivieren
+        levelsArray.forEach((_, i) => {
+          qualityLevels[i].enabled = i === index;
+        });
+        // UI aktualisieren
+        qualityMenu.children().forEach((item: any) => {
+          item.removeClass('vjs-selected');
+        });
+        menuItem.addClass('vjs-selected');
+      });
+
+      qualityMenu.addChild(menuItem);
+    });
+
+    // Menü zum Button hinzufügen
+    qualityMenuButton.addChild(qualityMenu);
+
+    // Button zur ControlBar hinzufügen
+    const controlBar = this.player.controlBar;
+    controlBar.addChild(
+      qualityMenuButton,
+      {},
+      controlBar.children().length - 2
+    );
+  }
+
+  // Hilfsfunktion für Qualitäts-Labels
+  private getQualityLabel(level: any): string {
+    if (level.height >= 1080) return '1080p (HD)';
+    if (level.height >= 720) return '720p (HD)';
+    if (level.height >= 480) return '480p';
+
+    // Fallback für andere Fälle
+    return `${level.height}p (${Math.round(level.bandwidth / 1000)}kbps)`;
   }
 
   disposePlayer() {
