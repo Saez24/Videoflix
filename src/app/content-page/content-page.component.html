@@ -58,18 +58,18 @@
   </main>
 </section>
 
-<!-- Video-Overlay mit Video.js Player -->
 <div
   class="video-player-overlay"
   *ngIf="selectedVideoUrl$ | async as selectedVideo"
 >
   <div class="video-container">
-    <button class="close-btn" (click)="setSelectedVideo(null)">X</button>
+    <button class="close-btn" (click)="setSelectedVideo(null)">
+      <mat-icon>close</mat-icon>
+    </button>
 
-    <!-- Video.js Player -->
     <video
       id="videoPlayer"
-      class="video-js vjs-default-skin"
+      class="video-js vjs-default-skin custom-vjs"
       controls
       preload="auto"
       width="100%"

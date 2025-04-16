@@ -33,7 +33,9 @@ import videojs from 'video.js';
 })
 export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private player: any;
-  constructor(public apiService: ApiService, public authService: AuthService) {}
+  constructor(public apiService: ApiService, public authService: AuthService) {
+    window.addEventListener('keydown', this.handleEscape);
+  }
 
   videos$ = new BehaviorSubject<any[]>([]);
   thumbnails$ = new BehaviorSubject<string[]>([]);
@@ -60,7 +62,14 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.disposePlayer();
+    window.removeEventListener('keydown', this.handleEscape);
   }
+
+  handleEscape = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      this.setSelectedVideo(null);
+    }
+  };
 
   async getVideos() {
     const response = await this.apiService.getData(this.apiService.CONTENT_URL);
