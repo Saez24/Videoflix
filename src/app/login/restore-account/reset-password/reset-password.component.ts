@@ -1,50 +1,39 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, signal } from '@angular/core';
 import {
   FormControl,
+  Validators,
   FormsModule,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { merge } from 'rxjs';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-
-import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { RouterLink } from '@angular/router';
+import { ApiService } from '../../../shared/services/api/api.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-reset-password',
+  standalone: true,
   imports: [
+    CommonModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCheckboxModule,
     RouterLink,
-    RouterLinkActive,
-    RouterModule,
   ],
   templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./reset-password.component.scss'],
 })
 export class ResetPasswordComponent {
-  readonly email = new FormControl('', [Validators.required, Validators.email]);
-
+  email = new FormControl('', [Validators.required, Validators.email]);
   errorMessage = signal('');
+  requestSent = signal(false);
+  isLoading = signal(false);
 
-  constructor() {
-    merge(this.email.statusChanges, this.email.valueChanges)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.updateErrorMessage());
-  }
+  constructor(private apiService: ApiService) {}
 
   updateErrorMessage() {
     if (this.email.hasError('required')) {
@@ -53,6 +42,33 @@ export class ResetPasswordComponent {
       this.errorMessage.set('Not a valid email');
     } else {
       this.errorMessage.set('');
+    }
+  }
+
+  async sendResetEmail() {
+    if (this.email.invalid) return;
+
+    this.isLoading.set(true);
+    try {
+      const response = await fetch(
+        `${this.apiService.API_BASE_URL}password-reset/request/`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: this.email.value }),
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        this.requestSent.set(true);
+      } else {
+        this.errorMessage.set(data.error || 'An error occurred');
+      }
+    } catch (error) {
+      this.errorMessage.set('There was a problem with the request');
+    } finally {
+      this.isLoading.set(false);
     }
   }
 }

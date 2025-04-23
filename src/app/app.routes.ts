@@ -8,6 +8,7 @@ import { LegalNoticeComponent } from './shared/legal-pages/legal-notice/legal-no
 import { ContentPageComponent } from './content-page/content-page.component';
 import { EmailVerificationComponent } from './login/sign-up/email-verification/email-verification.component';
 import { authGuard } from './auth.guard';
+import { ResetPasswordConfirmComponent } from './login/restore-account/reset-password-confirm/reset-password-confirm.component';
 
 export const routes: Routes = [
   {
@@ -17,6 +18,10 @@ export const routes: Routes = [
 
   { path: 'sign-up', component: SignUpComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  {
+    path: 'password-reset-confirm/:uidb64/:token',
+    component: ResetPasswordConfirmComponent,
+  },
   { path: 'sign-in', component: SignInComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'legal-notice', component: LegalNoticeComponent },
