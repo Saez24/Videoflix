@@ -1,4 +1,5 @@
 from django.contrib import admin
+from content.tasks import convert_to_hls
 from profiles.models import Profile
 from sub_profiles.models import SubProfile
 from content.models import Video
@@ -64,6 +65,15 @@ class ContentAdmin(admin.ModelAdmin):
         return "Kein Thumbnail"
     
     thumbnail_preview.short_description = 'Thumbnail Vorschau'
+
+    def save_model(self, request, obj, form, change):
+        is_new = not obj.pk  # Prüfen, ob es ein neues Objekt ist
+        super().save_model(request, obj, form, change)
+        
+        # Wenn es ein neues Objekt ist, starte die Konvertierung manuell
+        if is_new and obj.video_file:
+            queue = get_queue('default')
+            queue.enqueue(convert_to_hls, obj.video_file.path, obj.id, job_timeout=360, result_ttl=0) 
     
 
 
