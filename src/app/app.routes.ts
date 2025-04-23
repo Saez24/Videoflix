@@ -7,6 +7,7 @@ import { PrivacyPolicyComponent } from './shared/legal-pages/privacy-policy/priv
 import { LegalNoticeComponent } from './shared/legal-pages/legal-notice/legal-notice.component';
 import { ContentPageComponent } from './content-page/content-page.component';
 import { EmailVerificationComponent } from './login/sign-up/email-verification/email-verification.component';
+import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
   {
@@ -19,7 +20,11 @@ export const routes: Routes = [
   { path: 'sign-in', component: SignInComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'legal-notice', component: LegalNoticeComponent },
-  { path: 'content-page', component: ContentPageComponent },
+  {
+    path: 'content-page',
+    component: ContentPageComponent,
+    canActivate: [authGuard],
+  },
   {
     path: 'verify-email/:uidb64/:token',
     component: EmailVerificationComponent,

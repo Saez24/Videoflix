@@ -34,10 +34,7 @@
               "src/styles.scss",
               "node_modules/video.js/dist/video-js.min.css"
             ],
-            "scripts": [
-              "node_modules/video.js/dist/video.min.js",
-              "node_modules/videojs-contrib-quality-levels/dist/videojs-contrib-quality-levels.min.js"
-            ],
+            "scripts": [],
             "server": "src/main.server.ts",
             "prerender": false,
             "ssr": false

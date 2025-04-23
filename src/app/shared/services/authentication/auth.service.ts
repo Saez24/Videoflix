@@ -23,6 +23,15 @@ export class AuthService {
   apiService = inject(ApiService);
   snackBarService = inject(SnackBarService);
 
+  isLoggedIn(): boolean {
+    return !!this.getAuthToken(); // Beispiel: Überprüft, ob ein Token existiert
+  }
+
+  private getAuthToken(): string | null {
+    // Beispiel: Token aus dem lokalen Speicher abrufen
+    return localStorage.getItem('auth-token');
+  }
+
   constructor() {}
 
   logOut() {
@@ -59,6 +68,8 @@ export class AuthService {
         response.data.email
       );
       this.router.navigateByUrl('content-page');
+    } else {
+      this.snackBarService.showSnackBarWrongCredentials();
     }
 
     return response;
@@ -83,7 +94,7 @@ export class AuthService {
           this.router.navigateByUrl('sign-in'); // Weiterleiten nach Schließen der Snackbar
         });
     } else {
-      console.error('Registration failed:', response.message);
+      this.snackBarService.showSnackBarUserExists();
       // Hier evtl. eine Fehlermeldung anzeigen
     }
   }

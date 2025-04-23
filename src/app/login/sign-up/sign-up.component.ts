@@ -44,6 +44,17 @@ export class SignUpComponent {
   errorMessage = signal('');
   hide = signal(true);
 
+  isFormValid(): boolean {
+    const passwordsMatch = this.password.value === this.repeated_password.value;
+
+    return (
+      this.email.valid &&
+      this.password.valid &&
+      this.repeated_password.valid &&
+      passwordsMatch
+    );
+  }
+
   constructor(public authService: AuthService) {
     merge(this.email.statusChanges, this.email.valueChanges)
       .pipe(takeUntilDestroyed())

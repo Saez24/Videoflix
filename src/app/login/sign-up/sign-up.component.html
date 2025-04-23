@@ -72,7 +72,8 @@
       </mat-form-field>
 
       <button
-        class="btn"
+        class="btn register-button"
+        [disabled]="!isFormValid()"
         (click)="
           authService.register({
             email: email.value || '',

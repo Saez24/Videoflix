@@ -32,6 +32,10 @@ export class SnackBarService {
     this.openSnackBar('This user already exists');
   }
 
+  showSnackBarWrongCredentials() {
+    this.openSnackBar('Wrong email or password');
+  }
+
   showSnackBarRegister(): MatSnackBarRef<SimpleSnackBar> {
     return this.snackBar.open(
       'Registration successful! Please check your email.',

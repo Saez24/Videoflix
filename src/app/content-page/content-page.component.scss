@@ -114,6 +114,11 @@ app-root .logo {
 }
 
 /* ============ VIDEO.JS CUSTOM STYLES ============ */
+.video-js {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .custom-vjs .video-js {
   span {
     font-size: 10px !important;

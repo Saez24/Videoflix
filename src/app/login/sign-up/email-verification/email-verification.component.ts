@@ -36,7 +36,7 @@ export class EmailVerificationComponent implements OnInit {
 
     if (uidb64 && token) {
       await fetch(
-        `http://127.0.0.1:8000/api/registration/verify/${uidb64}/${token}/`,
+        `${this.API_BASE_URL}registration/verify/${uidb64}/${token}/`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -13,7 +13,7 @@ import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
 import { AuthService } from '../shared/services/authentication/auth.service';
 import { BehaviorSubject } from 'rxjs';
 import videojs from 'video.js';
-import qualityLevels from 'videojs-contrib-quality-levels';
+import '@videojs/http-streaming';
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
 
 @Component({
@@ -35,6 +35,14 @@ import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-leve
 })
 export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private player: any;
+  private isSafari(): boolean {
+    const ua = navigator.userAgent.toLowerCase();
+    return (
+      ua.indexOf('safari') !== -1 &&
+      ua.indexOf('chrome') === -1 &&
+      ua.indexOf('android') === -1
+    );
+  }
   constructor(public apiService: ApiService, public authService: AuthService) {
     window.addEventListener('keydown', this.handleEscape);
   }
@@ -147,6 +155,11 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
     ) as HTMLVideoElement;
     if (!videoElement) return;
 
+    const isSafari = this.isSafari();
+
+    console.log(`Is Safari: ${isSafari}`);
+    console.log(`Video URL: ${url}`);
+
     this.player = videojs(videoElement, {
       autoplay: false,
       controls: true,
@@ -154,8 +167,12 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
       fluid: true,
       html5: {
         vhs: {
-          overrideNative: true,
+          overrideNative: !isSafari, // Wichtig für Safari: Lasse native HLS zu
+          fastQualityChange: true,
+          useDevicePixelRatio: true,
         },
+        nativeAudioTracks: isSafari,
+        nativeVideoTracks: isSafari,
       },
       sources: [
         {
@@ -165,27 +182,56 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
       ],
     });
 
-    // Warte auf das 'loadedmetadata' Event
+    // Events
     this.player.on('loadedmetadata', () => {
-      this.setupQualitySelectorWithRetry();
+      console.log('Video metadata loaded');
+      setTimeout(() => this.setupQualitySelectorWithRetry(), 500);
     });
   }
 
   setupQualitySelectorWithRetry(attempt = 0) {
-    const MAX_ATTEMPTS = 5;
-    const RETRY_DELAY = 500;
+    const MAX_ATTEMPTS = 8; // Mehr Versuche für Safari
+    const RETRY_DELAY = 800; // Längere Verzögerung
+
+    // Stelle sicher, dass das Plugin aktiv ist
+    if (!this.player.qualityLevels) {
+      console.warn('Quality levels plugin not loaded');
+      return;
+    }
 
     const qualityLevels = this.player.qualityLevels();
-    const levelsArray = Array.from(qualityLevels) as QualityLevel[];
 
-    if (levelsArray.length > 0) {
+    // Prüfe, ob qualityLevels ein gültiges Objekt ist
+    if (!qualityLevels || typeof qualityLevels.length === 'undefined') {
+      console.warn('Quality levels not properly initialized');
+
+      if (attempt < MAX_ATTEMPTS) {
+        console.log(`Retry attempt ${attempt + 1} of ${MAX_ATTEMPTS}`);
+        setTimeout(() => {
+          this.setupQualitySelectorWithRetry(attempt + 1);
+        }, RETRY_DELAY);
+      }
+      return;
+    }
+
+    const levelsCount = qualityLevels.length;
+
+    // Mehr Debug-Informationen
+    console.log(`Quality levels found: ${levelsCount}`);
+
+    if (levelsCount > 0) {
       this.setupQualitySelector();
     } else if (attempt < MAX_ATTEMPTS) {
+      console.log(
+        `No quality levels found yet. Retry attempt ${
+          attempt + 1
+        } of ${MAX_ATTEMPTS}`
+      );
       setTimeout(() => {
         this.setupQualitySelectorWithRetry(attempt + 1);
       }, RETRY_DELAY);
     } else {
-      console.warn('No quality levels available after retries', qualityLevels);
+      console.warn('No quality levels available after retries');
     }
   }
 
