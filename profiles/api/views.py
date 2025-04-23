@@ -12,6 +12,12 @@ from django.conf import settings
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.views.decorators.cache import cache_page
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import BasePermission
+
+class IsOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.user == request.user or request.user.is_staff
+
 
 
 DEFAULT_TIMEOUT = getattr(settings, 'DEFAULT_TIMEOUT', 60)
@@ -25,15 +31,14 @@ class ProfileListView(generics.ListCreateAPIView):
     
 
 class ProfileDetailView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     lookup_field = 'pk'
-    def get_object(self):
-        return Profile.objects.get(user=self.request.user)
 
 class ProfileViewSets(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
     
@@ -48,7 +53,7 @@ class ProfileViewSets(generics.RetrieveUpdateAPIView):
     def get_object(self):
         try:
             pk = self.kwargs.get('pk')
-            profile = Profile.objects.get(user=pk)
+            profile = Profile.objects.get(pk=pk)
             return profile
         except Profile.DoesNotExist:
             raise NotFound("Profile not found")
@@ -56,13 +61,6 @@ class ProfileViewSets(generics.RetrieveUpdateAPIView):
     def patch(self, request, *args, **kwargs):
         try:
             profile = self.get_object()
-            user = profile.user
-
-            # Überprüfe Berechtigungen
-            if not (request.user == user or request.user.is_staff):
-                raise PermissionDenied("Not allowed to edit this profile.")
-
-            # Profil und Benutzer aktualisieren
             serializer = self.get_serializer(profile, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()

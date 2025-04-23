@@ -4,6 +4,9 @@ from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
 from rest_framework.authtoken.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from content.models import Video
 from .seriallizers import ContentSerializer
@@ -14,7 +17,7 @@ CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 @method_decorator(csrf_protect, name='dispatch')
 class ContentView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = ContentSerializer         
     queryset = Video.objects.all()
 
