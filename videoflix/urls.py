@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 import rq
 from registration.api.views import VerifyEmailView
 from django.urls import include
+from profiles.api.views import PasswordResetRequestView, PasswordResetConfirmView
 
 
 urlpatterns = [
@@ -33,5 +34,7 @@ urlpatterns = [
     path('api/sub_profiles/', include('sub_profiles.api.urls')),
     path('api/registration/verify/<uidb64>/<token>/', VerifyEmailView.as_view(), name='verify-email'),
     path('django-rq/', include('django_rq.urls')), 
-    path('rq/', include('django_rq.urls')),   
+    path('rq/', include('django_rq.urls')),
+    path('api/password-reset/request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('api/password-reset/confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),   
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
