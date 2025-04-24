@@ -78,11 +78,6 @@ p {
   color: #fff;
 }
 
-span {
-  font-size: 1rem;
-  color: #000;
-}
-
 .background {
   top: 0;
   left: 0;
@@ -376,6 +371,7 @@ input {
 .custom-snackbar {
   background-color: #4b42f1 !important;
   color: #fff !important;
+  z-index: 9999 !important;
 }
 
 @media (max-width: 768px) {

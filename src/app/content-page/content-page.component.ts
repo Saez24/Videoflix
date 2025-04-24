@@ -2,8 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
-  AfterViewInit,
   OnDestroy,
+  ElementRef,
+  ViewChild,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
@@ -11,13 +12,13 @@ import { ApiService } from '../shared/services/api/api.service';
 import { AsyncPipe, KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import { CapitalizePipe } from '../shared/pipes/capitalize.pipe';
 import { AuthService } from '../shared/services/authentication/auth.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
+import { VideoplayerComponent } from './videoplayer/videoplayer.component';
 import videojs from 'video.js';
-import '@videojs/http-streaming';
-import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
 
 @Component({
   selector: 'app-content-page',
+  standalone: true,
   imports: [
     MatIconModule,
     RouterLink,
@@ -28,21 +29,17 @@ import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-leve
     CapitalizePipe,
     AsyncPipe,
     KeyValuePipe,
+    VideoplayerComponent,
   ],
   templateUrl: './content-page.component.html',
   styleUrl: './content-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ContentPageComponent implements OnInit, OnDestroy {
+  @ViewChild('myVideo') myVideo!: ElementRef;
+
   private player: any;
-  private isSafari(): boolean {
-    const ua = navigator.userAgent.toLowerCase();
-    return (
-      ua.indexOf('safari') !== -1 &&
-      ua.indexOf('chrome') === -1 &&
-      ua.indexOf('android') === -1
-    );
-  }
+  private backgroundVideoSubscription: Subscription | null = null;
   constructor(public apiService: ApiService, public authService: AuthService) {
     window.addEventListener('keydown', this.handleEscape);
   }
@@ -51,28 +48,67 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
   thumbnails$ = new BehaviorSubject<string[]>([]);
   backgroundVideoUrl$ = new BehaviorSubject<string>('');
   private latestThumbnailsSubject = new BehaviorSubject<string[]>([]);
+  private latestVideosSubject = new BehaviorSubject<any[]>([]);
   latestThumbnails$ = this.latestThumbnailsSubject.asObservable();
   categorizedVideos$ = new BehaviorSubject<{ [category: string]: any[] }>({});
+  latestVideos$ = this.latestVideosSubject.asObservable();
   selectedVideoUrl$ = new BehaviorSubject<string | null>(null);
 
   ngOnInit() {
     this.getVideos();
     this.getThumbnails();
-  }
-
-  ngAfterViewInit() {
-    this.selectedVideoUrl$.subscribe((url) => {
-      if (url) {
-        setTimeout(() => this.initVideoPlayer(url), 0); // sicherstellen, dass DOM fertig
-      } else {
-        this.disposePlayer();
-      }
+    this.videos$.subscribe((videos) => {
+      this.latestVideosSubject.next(videos);
     });
   }
 
   ngOnDestroy() {
-    this.disposePlayer();
     window.removeEventListener('keydown', this.handleEscape);
+
+    // Clean up Video.js player
+    if (this.player) {
+      this.player.dispose();
+    }
+
+    if (this.backgroundVideoSubscription) {
+      this.backgroundVideoSubscription.unsubscribe();
+    }
+  }
+
+  ngAfterViewInit() {
+    // Initialize the Video.js player
+    if (this.myVideo) {
+      this.player = videojs(this.myVideo.nativeElement, {
+        controls: true,
+        autoplay: false,
+        loop: true,
+        muted: true,
+        playsinline: true,
+        preload: 'auto',
+      });
+
+      // Subscribe to changes in the backgroundVideoUrl$
+      this.backgroundVideoSubscription = this.backgroundVideoUrl$.subscribe(
+        (url) => {
+          if (url && this.player) {
+            // Set the source to 720p.m3u8 specifically
+            const hlsSource = `${url}?quality=720p.m3u8`;
+            this.player.src({
+              src: hlsSource,
+              type: 'application/x-mpegURL',
+            });
+
+            // Give the player a moment to load the new source
+            setTimeout(() => {
+              this.player.load();
+              this.player.play().catch((error: unknown) => {
+                console.error('Error playing video:', error);
+              });
+            }, 100);
+          }
+        }
+      );
+    }
   }
 
   handleEscape = (event: KeyboardEvent) => {
@@ -111,22 +147,29 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async getThumbnails() {
     const response = await this.apiService.getData(this.apiService.CONTENT_URL);
-    const thumbnails = response.data.map(
-      (video: any) => this.apiService.STATIC_BASE_URL + video.thumbnail
-    );
-    this.thumbnails$.next(thumbnails);
-    this.getLatestVideoThumbnails(thumbnails);
+    // Speichere vollständige Video-Objekte oder zumindest Thumbnail + created_at
+    const videoThumbnails: { thumbnail: string; created_at: string }[] =
+      response.data.map((video: any) => ({
+        thumbnail: this.apiService.STATIC_BASE_URL + video.thumbnail,
+        created_at: video.created_at,
+      }));
+
+    this.thumbnails$.next(
+      videoThumbnails.map((item: { thumbnail: string }) => item.thumbnail)
+    ); // Nur URLs für thumbnails$
+    this.getLatestVideoThumbnails(videoThumbnails); // Vollständige Objekte für die Sortierung
   }
 
-  getLatestVideoThumbnails(thumbnails: any[]) {
-    const sortedThumbnails = thumbnails
-      .filter((video) => video.created_at) // Entfernt Objekte ohne created_at
+  getLatestVideoThumbnails(videoThumbnails: any[]) {
+    const sortedThumbnails = videoThumbnails
+      .filter((item) => item.created_at) // Jetzt funktioniert das
       .sort(
         (a, b) =>
           new Date(b.created_at || 0).getTime() -
           new Date(a.created_at || 0).getTime()
       )
-      .slice(0, 6);
+      .slice(0, 6)
+      .map((item) => item.thumbnail); // Konvertiere zurück zu String-URLs
 
     this.latestThumbnailsSubject.next(sortedThumbnails);
   }
@@ -137,190 +180,17 @@ export class ContentPageComponent implements OnInit, AfterViewInit, OnDestroy {
         (max, video) => (video.views > max.views ? video : max),
         videos[0]
       );
-      this.backgroundVideoUrl$.next(
-        this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file
-      );
+
+      // Verwende HLS-Playlist statt der Original-Videodatei
+      const videoSource = mostViewedVideo.hls_playlist
+        ? this.apiService.STATIC_BASE_URL + mostViewedVideo.hls_playlist
+        : this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file;
+
+      this.backgroundVideoUrl$.next(videoSource);
     }
   }
 
   setSelectedVideo(videoUrl: string | null) {
     this.selectedVideoUrl$.next(videoUrl);
-  }
-
-  initVideoPlayer(url: string) {
-    this.disposePlayer();
-
-    const videoElement = document.getElementById(
-      'videoPlayer'
-    ) as HTMLVideoElement;
-    if (!videoElement) return;
-
-    const isSafari = this.isSafari();
-
-    console.log(`Is Safari: ${isSafari}`);
-    console.log(`Video URL: ${url}`);
-
-    this.player = videojs(videoElement, {
-      autoplay: false,
-      controls: true,
-      responsive: true,
-      fluid: true,
-      html5: {
-        vhs: {
-          overrideNative: !isSafari, // Wichtig für Safari: Lasse native HLS zu
-          fastQualityChange: true,
-          useDevicePixelRatio: true,
-        },
-        nativeAudioTracks: isSafari,
-        nativeVideoTracks: isSafari,
-      },
-      sources: [
-        {
-          src: url,
-          type: 'application/x-mpegURL',
-        },
-      ],
-    });
-
-    // Events
-    this.player.on('loadedmetadata', () => {
-      console.log('Video metadata loaded');
-      setTimeout(() => this.setupQualitySelectorWithRetry(), 500);
-    });
-  }
-
-  setupQualitySelectorWithRetry(attempt = 0) {
-    const MAX_ATTEMPTS = 8; // Mehr Versuche für Safari
-    const RETRY_DELAY = 800; // Längere Verzögerung
-
-    // Stelle sicher, dass das Plugin aktiv ist
-    if (!this.player.qualityLevels) {
-      console.warn('Quality levels plugin not loaded');
-      return;
-    }
-
-    const qualityLevels = this.player.qualityLevels();
-
-    // Prüfe, ob qualityLevels ein gültiges Objekt ist
-    if (!qualityLevels || typeof qualityLevels.length === 'undefined') {
-      console.warn('Quality levels not properly initialized');
-
-      if (attempt < MAX_ATTEMPTS) {
-        console.log(`Retry attempt ${attempt + 1} of ${MAX_ATTEMPTS}`);
-        setTimeout(() => {
-          this.setupQualitySelectorWithRetry(attempt + 1);
-        }, RETRY_DELAY);
-      }
-      return;
-    }
-
-    const levelsCount = qualityLevels.length;
-
-    // Mehr Debug-Informationen
-    console.log(`Quality levels found: ${levelsCount}`);
-
-    if (levelsCount > 0) {
-      this.setupQualitySelector();
-    } else if (attempt < MAX_ATTEMPTS) {
-      console.log(
-        `No quality levels found yet. Retry attempt ${
-          attempt + 1
-        } of ${MAX_ATTEMPTS}`
-      );
-      setTimeout(() => {
-        this.setupQualitySelectorWithRetry(attempt + 1);
-      }, RETRY_DELAY);
-    } else {
-      console.warn('No quality levels available after retries');
-    }
-  }
-
-  setupQualitySelector() {
-    const qualityLevels = this.player.qualityLevels();
-    const levelsArray = Array.from(qualityLevels);
-
-    // Erstelle das Menü
-    const MenuButton = videojs.getComponent('MenuButton');
-    const qualityMenuButton = new MenuButton(this.player, {
-      className: 'vjs-quality-selector',
-    });
-
-    // Custom Icon hinzufügen
-    const icon = videojs.dom.createEl('span', {
-      className: 'vjs-icon-quality',
-      innerHTML: '&#x2699;', // Zahnrad-Icon
-    });
-    qualityMenuButton.el().appendChild(icon);
-
-    const Menu = videojs.getComponent('Menu');
-    const qualityMenu = new Menu(this.player);
-
-    // Finde die aktuell aktive Qualitätsstufe
-    const activeIndex = levelsArray.findIndex(
-      (level) => (level as QualityLevel).enabled_
-    );
-
-    levelsArray.forEach((level, index) => {
-      const MenuItem = videojs.getComponent('MenuItem');
-      const menuItem = new MenuItem(this.player, {
-        className: 'vjs-menu-item-selectable',
-        // selectable: true, // Removed as it's not recognized
-      });
-
-      // Label erstellen
-      const label = this.getQualityLabel(level);
-      const labelEl = videojs.dom.createEl('div', {
-        className: 'vjs-menu-item-text',
-        textContent: label,
-      });
-      menuItem.el().appendChild(labelEl);
-
-      // Aktive Stufe markieren
-      if (index === activeIndex) {
-        menuItem.addClass('vjs-selected');
-      }
-
-      menuItem.on('click', () => {
-        // Alle Stufen deaktivieren
-        levelsArray.forEach((_, i) => {
-          qualityLevels[i].enabled = i === index;
-        });
-        // UI aktualisieren
-        qualityMenu.children().forEach((item: any) => {
-          item.removeClass('vjs-selected');
-        });
-        menuItem.addClass('vjs-selected');
-      });
-
-      qualityMenu.addChild(menuItem);
-    });
-
-    // Menü zum Button hinzufügen
-    qualityMenuButton.addChild(qualityMenu);
-
-    // Button zur ControlBar hinzufügen
-    const controlBar = this.player.controlBar;
-    controlBar.addChild(
-      qualityMenuButton,
-      {},
-      controlBar.children().length - 2
-    );
-  }
-
-  // Hilfsfunktion für Qualitäts-Labels
-  private getQualityLabel(level: any): string {
-    if (level.height >= 1080) return '1080p (HD)';
-    if (level.height >= 720) return '720p (HD)';
-    if (level.height >= 480) return '480p';
-
-    // Fallback für andere Fälle
-    return `${level.height}p (${Math.round(level.bandwidth / 1000)}kbps)`;
-  }
-
-  disposePlayer() {
-    if (this.player) {
-      this.player.dispose();
-      this.player = null;
-    }
   }
 }

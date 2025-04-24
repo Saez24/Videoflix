@@ -4,6 +4,7 @@ import {
   MatSnackBarRef,
   SimpleSnackBar,
 } from '@angular/material/snack-bar';
+import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
 
 @Injectable({
   providedIn: 'root',
@@ -44,19 +45,9 @@ export class SnackBarService {
     );
   }
 
-  showSnackBarChangedVideoQuality120P() {
-    this.openSnackBar('Changed Videoquality to 120p');
-  }
-
-  showSnackBarChangedVideoQuality360P() {
-    this.openSnackBar('Changed Videoquality to 360p');
-  }
-
-  showSnackBarChangedVideoQuality720P() {
-    this.openSnackBar('Changed Videoquality to 720p');
-  }
-
-  showSnackBarChangedVideoQuality1080P() {
-    this.openSnackBar('Changed Videoquality to 1080p');
+  showSnackBarChangedVideoQuality(quality: string) {
+    return this.snackBar.open(`Video quality changed to ${quality}`, 'OK', {
+      duration: 3000,
+    });
   }
 }
