@@ -28,6 +28,7 @@ export class VideoplayerComponent
 
   private player: any;
   private qualitySelectorAdded = false;
+  private isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   constructor(private snackBarService: SnackBarService) {}
 
@@ -59,18 +60,17 @@ export class VideoplayerComponent
     this.disposePlayer();
   }
 
-  private isSafari(): boolean {
-    const ua = navigator.userAgent.toLowerCase();
-    return (
-      ua.indexOf('safari') !== -1 &&
-      ua.indexOf('chrome') === -1 &&
-      ua.indexOf('android') === -1
-    );
-  }
-
   initVideoPlayer(url: string) {
-    this.disposePlayer();
+    if (this.videoUrl) {
+      console.log('Video-URL vorhanden');
 
+      const source = document.createElement('source');
+      source.src = this.videoUrl;
+      source.type = 'video/mp4'; // <- ändere den MIME-Typen
+      this.videoElement?.nativeElement.appendChild(source);
+    } else {
+      console.log('Video-URL nicht vorhanden');
+    }
     const checkDomPresence = () => {
       const videoElement = this.videoElement?.nativeElement;
       if (!videoElement || !document.body.contains(videoElement)) {
@@ -79,8 +79,6 @@ export class VideoplayerComponent
         return;
       }
 
-      const isSafari = this.isSafari();
-
       this.player = videojs(videoElement, {
         autoplay: false,
         controls: true,
@@ -88,12 +86,12 @@ export class VideoplayerComponent
         fluid: true,
         html5: {
           vhs: {
-            overrideNative: !isSafari, // Wichtig für Safari: Lasse native HLS zu
+            overrideNative: !this.isSafari, // Wichtig für Safari: Lasse native HLS zu
             fastQualityChange: true,
             useDevicePixelRatio: true,
           },
-          nativeAudioTracks: isSafari,
-          nativeVideoTracks: isSafari,
+          nativeAudioTracks: this.isSafari,
+          nativeVideoTracks: this.isSafari,
         },
         sources: [
           {
@@ -105,9 +103,17 @@ export class VideoplayerComponent
 
       // Events
       this.player.on('loadedmetadata', () => {
-        console.log('Video metadata loaded');
-        setTimeout(() => this.setupQualitySelectorWithRetry(), 500);
+        const initialDelay = this.isSafari ? 1500 : 500;
+        setTimeout(() => this.setupQualitySelectorWithRetry(), initialDelay);
       });
+      if (this.isSafari) {
+        this.player.on('playing', () => {
+          // Sometimes in Safari, quality levels become available after playback starts
+          if (!this.qualitySelectorAdded) {
+            setTimeout(() => this.setupQualitySelectorWithRetry(), 1000);
+          }
+        });
+      }
     };
     checkDomPresence();
   }

@@ -53,6 +53,8 @@ export class ContentPageComponent implements OnInit, OnDestroy {
   categorizedVideos$ = new BehaviorSubject<{ [category: string]: any[] }>({});
   latestVideos$ = this.latestVideosSubject.asObservable();
   selectedVideoUrl$ = new BehaviorSubject<string | null>(null);
+  videoTitle: string = '';
+  videoDescription: string = '';
 
   ngOnInit() {
     this.getVideos();
@@ -97,7 +99,6 @@ export class ContentPageComponent implements OnInit, OnDestroy {
               src: hlsSource,
               type: 'application/x-mpegURL',
             });
-
             // Give the player a moment to load the new source
             setTimeout(() => {
               this.player.load();
@@ -185,6 +186,9 @@ export class ContentPageComponent implements OnInit, OnDestroy {
       const videoSource = mostViewedVideo.hls_playlist
         ? this.apiService.STATIC_BASE_URL + mostViewedVideo.hls_playlist
         : this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file;
+
+      this.videoTitle = mostViewedVideo.title;
+      this.videoDescription = mostViewedVideo.description;
 
       this.backgroundVideoUrl$.next(videoSource);
     }
