@@ -4,7 +4,6 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  OnInit,
   SimpleChanges,
   ViewChild,
   AfterViewInit,
@@ -15,6 +14,7 @@ import videojs from 'video.js';
 import '@videojs/http-streaming';
 import QualityLevel from 'videojs-contrib-quality-levels/dist/types/quality-level';
 import { SnackBarService } from '../../shared/services/snack-bar/snack-bar.service';
+import { VideoJsPlayerOptions } from '../../shared/types/video-player.types';
 
 @Component({
   selector: 'app-videoplayer',
@@ -23,7 +23,7 @@ import { SnackBarService } from '../../shared/services/snack-bar/snack-bar.servi
   styleUrl: './videoplayer.component.scss',
 })
 export class VideoplayerComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit
+  implements OnChanges, OnDestroy, AfterViewInit
 {
   @Input() videoUrl: string | null = null;
   @ViewChild('videoElement') videoElement!: ElementRef;
@@ -41,8 +41,6 @@ export class VideoplayerComponent
 
   constructor(private snackBarService: SnackBarService) {}
 
-  ngOnInit() {}
-
   ngAfterViewInit() {
     if (this.videoUrl) {
       setTimeout(() => {
@@ -58,6 +56,7 @@ export class VideoplayerComponent
     ) {
       if (this.videoUrl) {
         this.parseStartTimeFromUrl(this.videoUrl);
+        this.disposePlayer();
         this.initVideoPlayer(this.videoUrl);
       } else {
         this.disposePlayer();
@@ -73,100 +72,145 @@ export class VideoplayerComponent
   private parseStartTimeFromUrl(url: string): number {
     try {
       const urlObj = typeof url === 'string' ? new URL(url) : url;
-      const startTimeParam = urlObj.searchParams.get('startTime');
-      return startTimeParam ? parseFloat(startTimeParam) : 0;
+      const startTimeParams = urlObj.searchParams.getAll('startTime');
+      const startTimeParam =
+        startTimeParams.length > 0
+          ? startTimeParams[startTimeParams.length - 1]
+          : null;
+
+      const startTime = startTimeParam ? parseFloat(startTimeParam) : 0;
+      return startTime;
     } catch (e) {
       console.warn('Error parsing URL:', e);
-      const match = url.match(/[?&]startTime=([^&]+)/);
-      return match ? parseFloat(match[1]) : 0;
+
+      const regex = /[?&]startTime=([^&]+)/g;
+      let match;
+      let lastMatch;
+
+      while ((match = regex.exec(url)) !== null) {
+        lastMatch = match;
+      }
+
+      return lastMatch ? parseFloat(lastMatch[1]) : 0;
     }
   }
 
   initVideoPlayer(url: string) {
-    const checkDomPresence = () => {
-      const videoElement = this.videoElement?.nativeElement;
-      if (!videoElement || !document.body.contains(videoElement)) {
-        requestAnimationFrame(checkDomPresence);
-        return;
-      }
+    this.checkDomPresence(url);
+  }
 
-      this.startTime = this.parseStartTimeFromUrl(url);
+  private checkDomPresence(url: string) {
+    const videoElement = this.videoElement?.nativeElement;
+    if (!videoElement || !document.body.contains(videoElement)) {
+      requestAnimationFrame(() => this.checkDomPresence(url));
+      return;
+    }
+    this.initializePlayer(url, videoElement);
+  }
 
-      this.player = videojs(videoElement, {
-        autoplay: false,
-        controls: true,
-        responsive: true,
-        fluid: true,
-        html5: {
-          vhs: {
-            overrideNative: !this.isSafari,
-            fastQualityChange: true,
-            useDevicePixelRatio: true,
-          },
-          nativeAudioTracks: this.isSafari,
-          nativeVideoTracks: this.isSafari,
+  private initializePlayer(url: string, videoElement: HTMLVideoElement) {
+    this.startTime = this.parseStartTimeFromUrl(url);
+
+    this.player = videojs(videoElement, this.getPlayerOptions(url));
+
+    this.setupPlayerReadyHandler();
+    this.setupPlayerEventHandlers();
+    this.setupSafariSpecificHandlers();
+    this.setupProgressTracking();
+  }
+
+  private getPlayerOptions(url: string): VideoJsPlayerOptions {
+    return {
+      autoplay: false,
+      controls: true,
+      responsive: true,
+      fluid: true,
+      html5: {
+        vhs: {
+          overrideNative: !this.isSafari,
+          fastQualityChange: true,
+          useDevicePixelRatio: true,
         },
-        sources: [
-          {
-            src: url.split('?')[0],
-            type: 'application/x-mpegURL',
-          },
-        ],
-      });
+        nativeAudioTracks: this.isSafari,
+        nativeVideoTracks: this.isSafari,
+      },
+      sources: [
+        {
+          src: url.split('?')[0],
+          type: 'application/x-mpegURL',
+        },
+      ],
+    };
+  }
 
-      this.player.on('loadedmetadata', () => {
-        if (this.startTime > 0) {
-          this.player.currentTime(this.startTime);
-          const initialDelay = this.isSafari ? 1500 : 500;
-          setTimeout(() => this.setupQualitySelectorWithRetry(), initialDelay);
-        }
-      });
+  private setupPlayerReadyHandler() {
+    this.player.ready(() => {
+      if (this.startTime > 0) {
+        this.player.currentTime(this.startTime);
+        this.startTime = 0; // WICHTIG: Zurücksetzen nach Gebrauch
+      }
+    });
+  }
 
-      this.player.on('play', () => {
-        if (this.startTime > 0 && this.player.currentTime() < this.startTime) {
-          this.player.currentTime(this.startTime);
-          this.startTime = 0;
-        }
-      });
+  private setupPlayerEventHandlers() {
+    const handleTimeUpdate = () => {
+      if (this.startTime > 0) {
+        this.player.currentTime(this.startTime);
+        const initialDelay = this.isSafari ? 1500 : 500;
+        setTimeout(() => this.setupQualitySelectorWithRetry(), initialDelay);
+      }
+    };
 
-      this.player.on('ended', () => {
-        console.log('Video ended event received');
+    this.player.on('loadedmetadata', () => {
+      if (this.startTime > 0) {
+        this.player.currentTime(this.startTime);
+        this.startTime = 0;
+      }
+      this.setupQualitySelectorWithRetry();
+    });
+
+    this.player.on('play', () => {
+      if (this.startTime > 0) {
+        this.player.currentTime(this.startTime);
+        this.startTime = 0;
+      }
+      this.setupQualitySelectorWithRetry();
+    });
+
+    this.player.on('ended', () => {
+      this.timeUpdate.emit({
+        currentTime: this.player.duration(),
+        duration: this.player.duration(),
+        videoEnded: true,
+      });
+    });
+  }
+
+  private setupSafariSpecificHandlers() {
+    if (!this.isSafari) return;
+
+    this.player.on('seeked', () => {
+      const ct = this.player.currentTime();
+      if (ct >= this.player.duration() - 1) {
         this.timeUpdate.emit({
           currentTime: this.player.duration(),
           duration: this.player.duration(),
-          videoEnded: true,
-        });
-      });
-
-      if (this.isSafari) {
-        this.player.on('seeked', () => {
-          const ct = this.player.currentTime();
-          if (ct >= this.player.duration() - 1) {
-            this.timeUpdate.emit({
-              currentTime: this.player.duration(),
-              duration: this.player.duration(),
-            });
-          }
-        });
-
-        this.player.on('timeupdate', () => {
-          const currentTime = this.player.currentTime();
-          const duration = this.player.duration();
-
-          // Manuelle Ende-Erkennung für Browser, die 'ended' Event nicht zuverlässig feuern
-          if (duration && currentTime && duration - currentTime < 0.5) {
-            console.log('Manual end detection');
-            this.timeUpdate.emit({
-              currentTime: duration,
-              duration: duration,
-            });
-          }
         });
       }
+    });
 
-      this.setupProgressTracking();
-    };
-    checkDomPresence();
+    this.player.on('timeupdate', () => {
+      const currentTime = this.player.currentTime();
+      const duration = this.player.duration();
+
+      if (duration && currentTime && duration - currentTime < 0.5) {
+        console.log('Manual end detection');
+        this.timeUpdate.emit({
+          currentTime: duration,
+          duration: duration,
+        });
+      }
+    });
   }
 
   formatTime(seconds: number): string {
@@ -343,6 +387,7 @@ export class VideoplayerComponent
       this.clearProgressInterval();
       this.player.dispose();
       this.player = null;
+      this.qualitySelectorAdded = false;
     }
   }
 }

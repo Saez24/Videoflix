@@ -106,26 +106,28 @@ export class ContentPageComponent implements OnInit, OnDestroy {
         playsinline: true,
         preload: 'auto',
       });
-
-      // Subscribe to changes in the backgroundVideoUrl$
-      this.backgroundVideoSubscription = this.backgroundVideoUrl$.subscribe(
-        (url) => {
-          if (url && this.player) {
-            const hlsSource = `${url}?quality=720p.m3u8`;
-            this.player.src({
-              src: hlsSource,
-              type: 'application/x-mpegURL',
-            });
-            setTimeout(() => {
-              this.player.load();
-              this.player.play().catch((error: unknown) => {
-                console.error('Error playing video:', error);
-              });
-            }, 100);
-          }
-        }
-      );
+      this.backgroundVideoClicked();
     }
+  }
+
+  backgroundVideoClicked() {
+    this.backgroundVideoSubscription = this.backgroundVideoUrl$.subscribe(
+      (url) => {
+        if (url && this.player) {
+          const hlsSource = `${url}?quality=720p.m3u8`;
+          this.player.src({
+            src: hlsSource,
+            type: 'application/x-mpegURL',
+          });
+          setTimeout(() => {
+            this.player.load();
+            this.player.play().catch((error: unknown) => {
+              console.error('Error playing video:', error);
+            });
+          }, 100);
+        }
+      }
+    );
   }
 
   handleEscape = (event: KeyboardEvent) => {
@@ -210,7 +212,6 @@ export class ContentPageComponent implements OnInit, OnDestroy {
   }
 
   playBackgroundVideo() {
-    console.log('Playing background video');
     const backgroundVideoUrl = this.backgroundVideoUrl$.getValue();
     if (backgroundVideoUrl) {
       const videos = this.videos$.getValue();
@@ -219,16 +220,44 @@ export class ContentPageComponent implements OnInit, OnDestroy {
         videos[0]
       );
 
-      this.setSelectedVideo(backgroundVideoUrl, mostViewedVideo);
+      // Check if there's progress for this video in localStorage
+      const userId = this.apiService.getAuthUserId() || 'guest';
+      const continueWatchingKey = `${userId}_continue_watching`;
+      let continueWatchingList: VideoProgress[] = [];
+
+      try {
+        const savedData = localStorage.getItem(continueWatchingKey);
+        if (savedData) {
+          continueWatchingList = JSON.parse(savedData);
+        }
+      } catch (error) {
+        console.error('Error loading continue watching data:', error);
+      }
+
+      // Find progress for this video
+      const videoProgress = continueWatchingList.find(
+        (item) => item.videoId === mostViewedVideo.id
+      );
+
+      let videoUrl = backgroundVideoUrl;
+
+      // If progress exists and video hasn't ended, add startTime parameter
+      if (
+        videoProgress &&
+        !videoProgress.videoEnded &&
+        videoProgress.currentTime > 0
+      ) {
+        const baseUrl = videoUrl.split('?')[0];
+        videoUrl = `${baseUrl}?startTime=${videoProgress.currentTime}`;
+      }
+
+      this.setSelectedVideo(videoUrl, mostViewedVideo);
     }
   }
 
   setSelectedVideo(videoUrl: string | null, videoData: any | null) {
-    // 1. Beim Schließen (videoUrl === null)
     if (videoUrl === null && this.currentVideoId) {
-      console.log('Closing player - checking for ended video');
       if (this.videoEnded[this.currentVideoId]) {
-        console.log(`Removing ended video ${this.currentVideoId}`);
         this.removeFromContinueWatching(this.currentVideoId);
         delete this.videoEnded[this.currentVideoId];
       }
@@ -237,11 +266,48 @@ export class ContentPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // 2. Normale Videoauswahl
     this.saveCurrentVideoProgress();
-    this.selectedVideoUrl$.next(videoUrl);
-    this.selectedVideoData$.next(videoData);
-    this.currentVideoId = videoData?.id || videoData?.videoId || null;
+
+    // Check if there's progress for the new video
+    if (videoUrl && videoData) {
+      const userId = this.apiService.getAuthUserId() || 'guest';
+      const continueWatchingKey = `${userId}_continue_watching`;
+      let continueWatchingList: VideoProgress[] = [];
+
+      try {
+        const savedData = localStorage.getItem(continueWatchingKey);
+        if (savedData) {
+          continueWatchingList = JSON.parse(savedData);
+        }
+      } catch (error) {
+        console.error('Error loading continue watching data:', error);
+      }
+
+      const videoId = videoData?.id || videoData?.videoId;
+      const videoProgress = continueWatchingList.find(
+        (item) => item.videoId === videoId
+      );
+
+      let finalVideoUrl = videoUrl;
+
+      // If progress exists and video hasn't ended, add startTime parameter
+      if (
+        videoProgress &&
+        !videoProgress.videoEnded &&
+        videoProgress.currentTime > 0
+      ) {
+        const baseUrl = videoUrl.split('?')[0];
+        finalVideoUrl = `${baseUrl}?startTime=${videoProgress.currentTime}`;
+      }
+
+      this.selectedVideoUrl$.next(finalVideoUrl);
+      this.selectedVideoData$.next(videoData);
+      this.currentVideoId = videoId;
+    } else {
+      this.selectedVideoUrl$.next(videoUrl);
+      this.selectedVideoData$.next(videoData);
+      this.currentVideoId = videoData?.id || videoData?.videoId || null;
+    }
   }
 
   // Called by videoplayer component via event emitter
@@ -265,13 +331,11 @@ export class ContentPageComponent implements OnInit, OnDestroy {
 
     const videoPlayerElement = document.querySelector('app-videoplayer');
     if (!videoPlayerElement) {
-      console.log('Cannot save progress - video player element not found');
       return;
     }
 
     const videoElement = videoPlayerElement.querySelector('video');
     if (!videoElement) {
-      console.log('Cannot save progress - video element not found');
       return;
     }
 
@@ -359,51 +423,42 @@ export class ContentPageComponent implements OnInit, OnDestroy {
   }
 
   playVideoFromProgress(progressEntry: VideoProgress) {
-    // Vollständige Videodaten finden
     const allVideos = this.videos$.getValue();
     const videoData = allVideos.find((v) => v.id === progressEntry.videoId);
+    const baseUrl = progressEntry.videoUrl.split('?')[0];
+    const urlWithStartTime = `${baseUrl}?startTime=${progressEntry.currentTime}`;
 
     if (videoData) {
       this.setSelectedVideo(progressEntry.videoUrl, videoData);
-      this.selectedVideoUrl$.next(
-        `${progressEntry.videoUrl}?startTime=${progressEntry.currentTime}`
-      );
+      this.selectedVideoUrl$.next(urlWithStartTime);
     } else {
-      // Fallback, falls Videodaten nicht gefunden werden
       this.setSelectedVideo(progressEntry.videoUrl, {
         id: progressEntry.videoId,
         title: progressEntry.title,
         thumbnail: progressEntry.thumbnail,
       });
-      this.selectedVideoUrl$.next(
-        `${progressEntry.videoUrl}?startTime=${progressEntry.currentTime}`
-      );
+      this.selectedVideoUrl$.next(urlWithStartTime);
     }
   }
 
   async removeFromContinueWatching(videoId: string) {
-    console.log(`Attempting to remove video ${videoId}`);
-
     const userId = this.apiService.getAuthUserId() || 'guest';
     const continueWatchingKey = `${userId}_continue_watching`;
 
     try {
       const savedData = localStorage.getItem(continueWatchingKey);
       if (!savedData) {
-        console.log('No continue watching data found');
         return;
       }
 
       let continueWatchingList: VideoProgress[] = JSON.parse(savedData);
       const initialLength = continueWatchingList.length;
 
-      // Filtere ALLE Einträge mit dieser videoId heraus (nicht nur ended)
       continueWatchingList = continueWatchingList.filter(
         (item) => item.videoId !== videoId
       );
 
       if (continueWatchingList.length < initialLength) {
-        console.log(`Successfully removed video ${videoId}`);
         localStorage.setItem(
           continueWatchingKey,
           JSON.stringify(continueWatchingList)
