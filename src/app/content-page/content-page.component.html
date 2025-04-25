@@ -4,6 +4,11 @@
       <div class="video-title">
         <h3>{{ this.videoTitle }}</h3>
         <p class="video-description">{{ this.videoDescription }}</p>
+
+        <button class="btn play-button" (click)="playBackgroundVideo()">
+          <mat-icon>play_circle_filled</mat-icon>
+          <span>Play Video</span>
+        </button>
       </div>
       <video
         #myVideo

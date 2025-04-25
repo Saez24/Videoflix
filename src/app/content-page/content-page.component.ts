@@ -182,7 +182,6 @@ export class ContentPageComponent implements OnInit, OnDestroy {
         videos[0]
       );
 
-      // Verwende HLS-Playlist statt der Original-Videodatei
       const videoSource = mostViewedVideo.hls_playlist
         ? this.apiService.STATIC_BASE_URL + mostViewedVideo.hls_playlist
         : this.apiService.STATIC_BASE_URL + mostViewedVideo.video_file;
@@ -191,6 +190,14 @@ export class ContentPageComponent implements OnInit, OnDestroy {
       this.videoDescription = mostViewedVideo.description;
 
       this.backgroundVideoUrl$.next(videoSource);
+    }
+  }
+
+  playBackgroundVideo() {
+    // Get the current background video URL and set it as the selected video
+    const backgroundVideoUrl = this.backgroundVideoUrl$.getValue();
+    if (backgroundVideoUrl) {
+      this.setSelectedVideo(backgroundVideoUrl);
     }
   }
 
