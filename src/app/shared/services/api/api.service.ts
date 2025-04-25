@@ -29,10 +29,10 @@ export class ApiService {
   }
 
   removeAuthCredentials() {
-    localStorage.clear();
-    // localStorage.removeItem('auth-token');
-    // localStorage.removeItem('auth-user');
-    // localStorage.removeItem('auth-user-id');
+    // localStorage.clear();
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('auth-user');
+    localStorage.removeItem('auth-user-id');
     // localStorage.removeItem('selectedAccount');
     // localStorage.removeItem('selectedSubaccount');
   }
