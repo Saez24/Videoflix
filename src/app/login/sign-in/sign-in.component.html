@@ -17,40 +17,46 @@
       <mat-card-content class="login-card-content"
         ><h1>Log in</h1>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Enter your email</mat-label>
-          <input
-            matInput
-            placeholder="pat@example.com"
-            [formControl]="email"
-            (blur)="updateErrorMessage()"
-            required
-            [autocomplete]="true"
-          />
-          @if (email.invalid) {
-          <mat-error>{{ errorMessage() }}</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Enter your password</mat-label>
-          <input
-            matInput
-            [type]="hide() ? 'password' : 'text'"
-            [formControl]="password"
-            [autocomplete]="true"
-          />
-          <button
-            class="btn password-button"
-            mat-icon-button
-            matSuffix
-            type="button"
-            (click)="clickEvent($event)"
-            [attr.aria-label]="'Hide password'"
-            [attr.aria-pressed]="hide()"
-          >
-            <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
-          </button>
-        </mat-form-field>
+        <div class="password-field-container">
+          <mat-form-field appearance="outline">
+            <mat-icon matPrefix>email</mat-icon>
+            <input
+              matInput
+              placeholder="E-Mail-Address"
+              [formControl]="email"
+              (blur)="updateErrorMessage()"
+              required
+              [autocomplete]="true"
+            />
+            @if (email.invalid) {
+            <mat-error>{{ errorMessage() }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="password-field-container">
+          <mat-form-field appearance="outline">
+            <mat-icon matPrefix>lock</mat-icon>
+            <input
+              matInput
+              placeholder="Password"
+              [type]="hide() ? 'password' : 'text'"
+              [formControl]="password"
+              autocomplete="current-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="clickEvent($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide()"
+            >
+              <mat-icon>{{
+                hide() ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
         <mat-checkbox class="remember-me">Remember me</mat-checkbox>
         <button
           class="btn"

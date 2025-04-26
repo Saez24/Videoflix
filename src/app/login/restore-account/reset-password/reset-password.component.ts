@@ -11,6 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../shared/services/api/api.service';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-reset-password',
@@ -23,6 +24,7 @@ import { CommonModule } from '@angular/common';
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
+    MatIconModule,
   ],
   templateUrl: './reset-password.component.html',
   styleUrls: ['./reset-password.component.scss'],

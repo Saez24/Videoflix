@@ -1,32 +1,29 @@
 .content {
-    max-width: 48.75rem;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
+  width: 80%;
+  max-width: 48.75rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 
-    .infotext {
-        text-align: center;
-        box-sizing: border-box;
+  .infotext {
+    text-align: center;
+    box-sizing: border-box;
 
-
-        button {
-            border: none;
-            margin: 0;
-
-        }
-
-        .email-input {
-            margin: 2rem 0 3rem 0;
-            display: flex;
-            gap: 1rem;
-        }
+    button {
+      border: none;
+      margin: 0;
     }
 
+    .email-input {
+      margin: 2rem 0 3rem 0;
+      display: flex;
+      gap: 1rem;
+    }
+  }
 }
 
 .start-button {
-    max-width: 120px;
+  max-width: 120px;
 }
-

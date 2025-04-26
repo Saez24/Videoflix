@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-reset-password-confirm',
@@ -23,6 +24,7 @@ import { MatCardModule } from '@angular/material/card';
     ReactiveFormsModule,
     MatButtonModule,
     RouterLink,
+    MatIconModule,
   ],
   templateUrl: './reset-password-confirm.component.html',
   styleUrls: ['./reset-password-confirm.component.scss'],

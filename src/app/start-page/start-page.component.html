@@ -20,12 +20,8 @@
       <h1>Movies, TV shows, and more</h1>
       <p>Enter your email to create or restart your subscription.</p>
       <div class="email-input">
-        <input type="email" placeholder="E-Mail-Address" />
-        <button
-          class="btn start-button"
-          routerLink="/sign-up"
-          routerLinkActive="active"
-        >
+        <input type="email" placeholder="E-Mail-Address" [(ngModel)]="email" />
+        <button class="btn start-button" (click)="navigateToSignUp()">
           <p>Sign up</p>
         </button>
       </div>

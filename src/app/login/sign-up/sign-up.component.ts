@@ -1,4 +1,9 @@
-import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -13,8 +18,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { merge } from 'rxjs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
-import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
+import {
+  RouterLink,
+  RouterLinkActive,
+  RouterModule,
+  ActivatedRoute,
+} from '@angular/router';
 import { AuthService } from '../../shared/services/authentication/auth.service';
 
 @Component({
@@ -36,13 +45,29 @@ import { AuthService } from '../../shared/services/authentication/auth.service';
   styleUrl: './sign-up.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SignUpComponent {
+export class SignUpComponent implements OnInit {
   readonly email = new FormControl('', [Validators.required, Validators.email]);
   readonly password = new FormControl('', [Validators.required]);
   readonly repeated_password = new FormControl('', [Validators.required]);
-
   errorMessage = signal('');
   hide = signal(true);
+
+  constructor(public authService: AuthService, private route: ActivatedRoute) {
+    merge(this.email.statusChanges, this.email.valueChanges)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.updateErrorMessage());
+  }
+
+  ngOnInit() {
+    // Lese die E-Mail-Adresse aus den Query-Parametern
+    this.route.queryParams.subscribe((params) => {
+      if (params['email']) {
+        this.email.setValue(params['email']);
+        // Validierung auslösen
+        this.updateErrorMessage();
+      }
+    });
+  }
 
   isFormValid(): boolean {
     const passwordsMatch = this.password.value === this.repeated_password.value;
@@ -53,12 +78,6 @@ export class SignUpComponent {
       this.repeated_password.valid &&
       passwordsMatch
     );
-  }
-
-  constructor(public authService: AuthService) {
-    merge(this.email.statusChanges, this.email.valueChanges)
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.updateErrorMessage());
   }
 
   clickEvent(event: MouseEvent) {
