@@ -155,5 +155,5 @@ GitHub.sublime-settings
 !.vscode/extensions.json 
 .history
 
-README.md
+# VS Code settings
 profiles/management/commands/
