@@ -93,6 +93,7 @@ app-root .logo {
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  box-sizing: border-box;
 
   .video-container {
     position: relative;
@@ -260,6 +261,16 @@ span {
   color: #fff;
 }
 
+@media (max-width: 1200px) {
+  .video-player-overlay {
+    padding: 1rem;
+  }
+  .video-container {
+    max-width: 100%;
+    aspect-ratio: 16/9;
+  }
+}
+
 /* Mobile Styles */
 @media (max-width: 768px) {
   .vjs-quality-selector {
@@ -271,5 +282,11 @@ span {
     transform: none;
     right: 0;
     width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .video-title p {
+    width: 80% !important;
   }
 }
