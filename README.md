@@ -25,7 +25,7 @@
 - **Python** 3.13
 - **Django** 5.1.4
 - **Django REST framework** for building the API
-- **RQ win** for running complex tasks in the background
+- **RQ** for running complex tasks in the background
 - **PostgreSQL** for database management
 
 ## Prerequisites
@@ -91,11 +91,12 @@ Step-by-step instructions for setting up the project locally.
    DATABASE_HOST=your postgresql host
    DATABASE_PORT=your postgresql port
 
-   EMAIL_HOST=smtp.example.com
-   EMAIL_PORT=587
+   EMAIL_HOST= smtp.example.com
+   EMAIL_PORT= 587
    EMAIL_USE_TLS= True 
-   EMAIL_HOST_USER=your email address to send emails
-   EMAIL_HOST_PASSWORD=the password to let third parties use your email
+   EMAIL_HOST_USER= your email address to send emails
+   EMAIL_HOST_PASSWORD= the password to let third parties use your email
+   DEFAULT_FROM_EMAIL = noreply@example.com
 
    REDIS_LOCATION=your redis host
    REDIS_PASSWORD=your redis password
@@ -145,6 +146,12 @@ Step-by-step instructions for setting up the project locally.
     gunicorn videoflix.wsgi:application
     ```
 
+11. **Start RQWorker**
+
+    ```bash
+    python manage.py rqworker default
+    ```    
+
 ## Usage
 
 - First of all you need to upload videos in your backend, you need a thumbnail (image in jpg format) and a video (video in mp4 format)
@@ -166,20 +173,14 @@ This section outlines the main endpoints provided by the API, along with example
 - POST `/api/registration/`
   Registers a user in the system.
 
-- GET `/api/email-verify/`
+- GET `api/registration/verify/<uidb64>/<token>/`
   Verifies the account after registering.
 
-- POST `/api/request-reset-email/`
+- POST `api/password-reset/request/`
   Sends an e-mail to reset the password.
 
-- GET `/api/password-reset/<uidb64>/<token>/`
+- GET/POST `api/password-reset/confirm/<uidb64>/<token>/`
   Checks if the password token is valid.
-
-- PATCH `/api/password-reset-complete/`
-  Replaces the old password.
-
-- POST `/api/check-registered-email/`
-  Checks if the e-mail is registered.
 
 **API CONTENT Endpoints**
 
@@ -188,11 +189,6 @@ Content endpoints provide functionality for managing the video progress of viewe
 - GET `/api/content/videos/`
   Returns a list of all available videos.
 
-- GET `/api/content/video-progress/in_progress`
-  Returns a list of all videos that have a progress of being viewed.
-
-- POST `/api/content/video-progress/<video_id>/save_progress`
-  Saves the progress of a video that has ben viewed.
 
 ## Testing
 
