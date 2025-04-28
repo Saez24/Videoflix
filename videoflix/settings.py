@@ -147,7 +147,7 @@ RQ_QUEUES = {
         'HOST': config("REDIS_LOCATION"),
         'PORT': config("REDIS_PORT"),
         'DB': config("REDIS_DB"),
-        'DEFAULT_TIMEOUT': 320,
+        'DEFAULT_TIMEOUT': 900,
         'REDIS_CLIENT_KWARGS': { 
             
         },
