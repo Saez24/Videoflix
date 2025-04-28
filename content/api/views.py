@@ -55,7 +55,7 @@ class ContentViewPK(APIView):
     
     def delete(self, request, pk, format=None):
         video = get_object_or_404(Video, pk=pk)
-        video.delete()  # Löscht das Video und löst das post_delete-Signal aus
+        video.delete() 
         return Response({"message": "Video deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     
 

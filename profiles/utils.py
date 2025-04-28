@@ -13,10 +13,8 @@ def send_password_reset_email(user):
 
         subject = "Passwort zurücksetzen"
     
-        # Textinhalt
         text_content = f"Hallo {user.username},\n\nUm Ihr Passwort zurückzusetzen, klicken Sie bitte auf diesen Link:\n{reset_url}\n\nDer Link ist 24 Stunden gültig."
 
-        # HTML-Inhalt
         html_content = f"""
         <html>
             <body>

@@ -11,7 +11,6 @@ from django_rq.queues import get_queue
 from django_rq.models import Queue
 from django_rq.admin import QueueAdmin
 
-# Proxy-Modelle erstellen
 class ProfileProxy(Profile):
     class Meta:
         proxy = True
@@ -53,7 +52,6 @@ class ContentAdmin(admin.ModelAdmin):
         obj.delete()
 
     def delete_queryset(self, request, queryset):
-        # Jede Instanz einzeln löschen, um delete() zu triggern
         with transaction.atomic():
             for obj in queryset:
                 obj.delete()
@@ -67,25 +65,20 @@ class ContentAdmin(admin.ModelAdmin):
     thumbnail_preview.short_description = 'Thumbnail Vorschau'
 
     def save_model(self, request, obj, form, change):
-        is_new = not obj.pk  # Prüfen, ob es ein neues Objekt ist
+        is_new = not obj.pk  
         super().save_model(request, obj, form, change)
         
-        # Wenn es ein neues Objekt ist, starte die Konvertierung manuell
         if is_new and obj.video_file:
             queue = get_queue('default')
             queue.enqueue(convert_to_hls, obj.video_file.path, obj.id, job_timeout=360, result_ttl=0) 
     
 
-
-# Registrierung der Proxy-Modelle
 admin.site.register(ProfileProxy, ProfileAdmin)
 admin.site.register(SubProfileProxy, SubProfileAdmin)
 admin.site.register(ContentProxy, ContentAdmin)
 admin.site.register(Queue, QueueAdmin)
 
 
-
-# Admin-Panel Einstellungen
 admin.site.site_header = 'Videoflix Verwaltung'
 admin.site.site_title = 'Admin-Panel'
 admin.site.index_title = 'Willkommen im Coderr Verwaltungsbereich'

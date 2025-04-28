@@ -18,7 +18,6 @@ class Video(models.Model):
         ('action', 'Action'),
         ('horror', 'Horror'),
         ('romance', 'Romance'),
-        # Weitere Kategorien hier hinzufügen
     ]
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -41,19 +40,15 @@ class Video(models.Model):
         return self.views >= 10
     
     def delete(self, *args, **kwargs):
-        # Speichere die Pfade
         video_path = self.video_file.path if self.video_file and hasattr(self.video_file, 'path') else None
         thumbnail_path = self.thumbnail.path if self.thumbnail and hasattr(self.thumbnail, 'path') else None
         
-        # Auch die HLS-Dateien und das Verzeichnis löschen, falls vorhanden
         hls_dir = None
         if self.hls_playlist and os.path.exists(self.hls_playlist):
             hls_dir = os.path.dirname(self.hls_playlist)
         
-        # Original delete aufrufen
         result = super().delete(*args, **kwargs)
         
-        # Dateien löschen
         if video_path and os.path.isfile(video_path):
             os.remove(video_path)
             print(f"Video file deleted: {video_path}")
@@ -62,7 +57,6 @@ class Video(models.Model):
             os.remove(thumbnail_path)
             print(f"Thumbnail deleted: {thumbnail_path}")
         
-        # HLS-Verzeichnis löschen, falls vorhanden
         if hls_dir and os.path.isdir(hls_dir):
             import shutil
             shutil.rmtree(hls_dir)

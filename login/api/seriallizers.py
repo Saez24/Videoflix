@@ -15,7 +15,6 @@ class CustomLoginSerializer(serializers.Serializer):
                 {"detail": "Email and Password are required."}
             )
 
-        # Verwende das benutzerdefinierte Backend zur Authentifizierung
         user = authenticate(email=email, password=password)
 
         if user is None:

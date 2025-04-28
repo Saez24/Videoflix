@@ -35,7 +35,7 @@ def create_master_playlist(base_name, qualities):
         f.write("#EXT-X-VERSION:3\n")
 
         for quality, (resolution, bitrate) in qualities.items():
-            bandwidth = int(bitrate[:-1]) * 1000  # Konvertiere z. B. '5000k' zu 5000000
+            bandwidth = int(bitrate[:-1]) * 1000  
             f.write(f"#EXT-X-STREAM-INF:BANDWIDTH={bandwidth},RESOLUTION={resolution}\n")
             f.write(f"{quality}.m3u8\n")
 
@@ -43,8 +43,8 @@ def create_master_playlist(base_name, qualities):
     return os.path.relpath(master_playlist_path, settings.MEDIA_ROOT)
 
 def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
-    # Vollständiger Pfad zu ffmpeg (falls erforderlich)
-    ffmpeg_path = '/usr/bin/ffmpeg'  # Ändern Sie dies, falls ffmpeg an einem anderen Ort installiert ist
+
+    ffmpeg_path = '/usr/bin/ffmpeg' 
 
     cmd = [
         ffmpeg_path,
@@ -83,10 +83,9 @@ def convert_to_hls(source, video_id):
             print(f'STDERR: {result.stderr}')
             print(f'Finished converting {source} to {quality} HLS')
 
-        # Erstelle Master Playlist
+
         create_master_playlist(base_name, QUALITIES)
 
-        # Speichere den korrekten Pfad in der Datenbank (ohne "../")
         video = Video.objects.get(id=video_id)
         video.hls_playlist = '/' + os.path.join(
             'media', 'videos', 'hls', 
@@ -95,7 +94,6 @@ def convert_to_hls(source, video_id):
         )
         video.save()
 
-        # Lösche die ursprüngliche MP4-Datei
         delete_mp4(source)
 
     except subprocess.CalledProcessError as e:
