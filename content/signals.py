@@ -3,40 +3,22 @@ from django.db.models.signals import post_save, post_delete
 from content.models import Video
 from django.dispatch import receiver
 import django_rq
-from .tasks import QUALITIES, convert_to_hls, create_base_directory, convert_single_quality, finalize_hls_conversion
+from .tasks import convert_to_hls
 
 print('Signals loaded')
 
-# In signals.py
 @receiver(post_save, sender=Video)
 def video_post_save(sender, instance, created, **kwargs):
+    """
+    Sends variables to tasks.py to format through RQ Worker
+    """
     if created:
         queue = django_rq.get_queue('default')
-        base_name = create_base_directory(instance.video_file.path)
-        
-        # Enqueue each quality conversion as a separate job
-        jobs = []  # Collect job objects
-        for quality, (resolution, bitrate) in QUALITIES.items():
-            job = queue.enqueue(
-                convert_single_quality, 
-                instance.video_file.path, 
-                base_name, 
-                quality, 
-                resolution, 
-                bitrate, 
-                instance.id,
-                job_timeout=760,
-                result_ttl=0                
-            )
-            jobs.append(job)  # Add the job to the list
-        
-        # Enqueue a job to create the master playlist after all conversions
         queue.enqueue(
-            finalize_hls_conversion,
-            instance.video_file.path,
-            instance.id,
-            depends_on=jobs,  # Use the collected jobs
-            job_timeout=60
+            convert_to_hls, 
+            args=(instance.video_file.path, instance.id), 
+            job_timeout=760,
+            result_ttl=0
         )
 
 @receiver(post_delete, sender=Video)
