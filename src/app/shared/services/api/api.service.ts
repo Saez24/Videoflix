@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 
 export interface ApiResponse<T> {
   ok: boolean;
@@ -14,8 +15,8 @@ export interface ApiResponse<T> {
 export class ApiService {
   constructor() {}
 
-  API_BASE_URL = 'https://videoflix-aws-backend.your-developer.com/api/';
-  STATIC_BASE_URL = 'https://videoflix-aws-backend.your-developer.com';
+  API_BASE_URL = environment.apiBaseUrl;
+  STATIC_BASE_URL = environment.staticBaseUrl;
   LOGIN_URL = 'login/';
   REGISTER_URL = 'registration/';
   PROFILE_URL = 'profiles/';
