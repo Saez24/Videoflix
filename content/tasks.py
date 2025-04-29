@@ -49,7 +49,7 @@ def generate_ffmpeg_command(source, base_name, quality, resolution, bitrate):
     cmd = [
         ffmpeg_path,
         '-i', source,
-        '-preset', 'ultrafast',
+        '-preset', 'fast',
         '-g', '48',
         '-sc_threshold', '0',
         '-map', '0:v',
