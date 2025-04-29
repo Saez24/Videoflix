@@ -37,6 +37,14 @@ export class SnackBarService {
     this.openSnackBar('Wrong email or password');
   }
 
+  showSnackBarCommonPassword() {
+    this.openSnackBar('This password is too common');
+  }
+
+  showSnackBarError(message: string) {
+    this.openSnackBar(message);
+  }
+
   showSnackBarRegister(): MatSnackBarRef<SimpleSnackBar> {
     return this.snackBar.open(
       'Registration successful! Please check your email.',

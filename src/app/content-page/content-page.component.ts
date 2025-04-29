@@ -414,7 +414,7 @@ export class ContentPageComponent implements OnInit, OnDestroy {
 
         this.continueWatchingVideos$.next(continueWatchingList);
       } else {
-        console.log('No continue watching data found in localStorage');
+        // console.log('No continue watching data found in localStorage');
       }
     } catch (error) {
       console.error('Error loading continue watching data:', error);
@@ -465,7 +465,7 @@ export class ContentPageComponent implements OnInit, OnDestroy {
         );
         this.continueWatchingVideos$.next(continueWatchingList);
       } else {
-        console.log(`Video ${videoId} not found in continue watching list`);
+        // console.log(`Video ${videoId} not found in continue watching list`);
       }
     } catch (error) {
       console.error('Error removing video:', error);

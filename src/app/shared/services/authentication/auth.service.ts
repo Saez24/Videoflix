@@ -86,16 +86,43 @@ export class AuthService {
     );
 
     if (response.ok) {
-      // console.log('Registrierung erfolgreich:', response.data);
+      // Registrierung erfolgreich
       this.snackBarService
         .showSnackBarRegister()
         .afterDismissed()
         .subscribe(() => {
-          this.router.navigateByUrl('sign-in'); // Weiterleiten nach Schließen der Snackbar
+          this.router.navigateByUrl('sign-in');
         });
     } else {
-      this.snackBarService.showSnackBarUserExists();
-      // Hier evtl. eine Fehlermeldung anzeigen
+      // Überprüfen Sie responseData auf Fehlermeldungen
+      const errorData = response.data as any; // Da bei Fehlern das Format anders sein könnte
+
+      if (errorData && typeof errorData === 'object') {
+        // Django sendet oft Fehler als Objekt mit Feldnamen als Schlüssel
+        if (errorData.password && Array.isArray(errorData.password)) {
+          // Prüfen auf verschiedene bekannte Fehlermeldungen
+          const passwordErrors = errorData.password;
+
+          if (passwordErrors.some((err: string) => err.includes('common'))) {
+            this.snackBarService.showSnackBarCommonPassword();
+            return;
+          }
+        }
+
+        if (errorData.email && Array.isArray(errorData.email)) {
+          const emailErrors = errorData.email;
+
+          if (
+            emailErrors.some((err: string) => err.includes('already in use'))
+          ) {
+            this.snackBarService.showSnackBarUserExists();
+            return;
+          }
+        }
+      }
+
+      // Fallback für unbekannte Fehler
+      this.snackBarService.showSnackBarError('Registration failed');
     }
   }
 }

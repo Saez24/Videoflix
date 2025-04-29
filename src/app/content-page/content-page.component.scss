@@ -186,12 +186,8 @@ span {
   align-items: center;
 }
 
-.vjs-control .vjs-button {
-  height: unset !important;
-}
-
 .vjs-quality-selector .vjs-icon-placeholder {
-  position: relative;
+  position: relative !important;
   width: 24px;
   height: 24px;
   display: flex;

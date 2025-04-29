@@ -204,7 +204,7 @@ export class VideoplayerComponent
       const duration = this.player.duration();
 
       if (duration && currentTime && duration - currentTime < 0.5) {
-        console.log('Manual end detection');
+        // console.log('Manual end detection');
         this.timeUpdate.emit({
           currentTime: duration,
           duration: duration,
@@ -272,7 +272,7 @@ export class VideoplayerComponent
       console.warn('Quality levels not properly initialized');
 
       if (attempt < MAX_ATTEMPTS) {
-        console.log(`Retry attempt ${attempt + 1} of ${MAX_ATTEMPTS}`);
+        // console.log(`Retry attempt ${attempt + 1} of ${MAX_ATTEMPTS}`);
         setTimeout(() => {
           this.setupQualitySelectorWithRetry(attempt + 1);
         }, RETRY_DELAY);
@@ -285,11 +285,11 @@ export class VideoplayerComponent
     if (levelsCount > 0) {
       this.setupQualitySelector();
     } else if (attempt < MAX_ATTEMPTS) {
-      console.log(
-        `No quality levels found yet. Retry attempt ${
-          attempt + 1
-        } of ${MAX_ATTEMPTS}`
-      );
+      // console.log(
+      //   `No quality levels found yet. Retry attempt ${
+      //     attempt + 1
+      //   } of ${MAX_ATTEMPTS}`
+      // );
       setTimeout(() => {
         this.setupQualitySelectorWithRetry(attempt + 1);
       }, RETRY_DELAY);
@@ -298,28 +298,62 @@ export class VideoplayerComponent
     }
   }
 
-  setupQualitySelector() {
+  // Funktion 1: Initialisierung und Registrierung der QualityMenuButton-Komponente
+  setupQualityComponents() {
     if (this.qualitySelectorAdded) return;
 
-    const qualityLevels = this.player.qualityLevels();
-    const levelsArray = Array.from(qualityLevels);
+    // Eigene QualityMenuButton Klasse definieren
     const MenuButton = videojs.getComponent('MenuButton');
-    const qualityMenuButton = new MenuButton(this.player, {
+    class QualityMenuButton extends MenuButton {
+      constructor(player: any, options: any) {
+        super(player, options);
+        // Icon-Placeholder erstellen und einfügen
+        const iconPlaceholder = videojs.dom.createEl('span', {
+          className: 'vjs-icon-placeholder',
+          innerHTML: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px">
+    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 12H9.5v-2h-2v2H6V9h1.5v2.5h2V9H11v6zm2-6h4c.55 0 1 .45 1 1v4c0 .55-.45 1-1 1h-4V9zm1.5 4.5h2v-3h-2v3z"/>
+  </svg>`,
+          style:
+            'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex;',
+        });
+        this.el().insertBefore(iconPlaceholder, this.el().firstChild);
+      }
+      override buildCSSClass() {
+        return `vjs-quality-selector ${super.buildCSSClass()}`;
+      }
+    }
+
+    // Komponente registrieren
+    videojs.registerComponent('QualityMenuButton', QualityMenuButton);
+  }
+
+  // Funktion 2: Erstellen des Quality-Buttons und Menüs
+  createQualityMenuButton() {
+    // Quality-Button über die registrierte Komponente abrufen und erstellen
+    const QualityMenuButton = videojs.getComponent('QualityMenuButton');
+    const qualityMenuButton = new QualityMenuButton(this.player, {
       className: 'vjs-quality-selector',
     });
 
-    const icon = videojs.dom.createEl('span', {
-      className: 'vjs-icon-quality',
-      innerHTML: '&#x2699;',
-    });
-    qualityMenuButton.el().appendChild(icon);
-
+    // Menü erstellen
     const Menu = videojs.getComponent('Menu');
     const qualityMenu = new Menu(this.player);
+
+    // Füge das Menü dem Button hinzu
+    qualityMenuButton.addChild(qualityMenu);
+
+    return { qualityMenuButton, qualityMenu };
+  }
+
+  // Funktion 3: Erstellen und Hinzufügen der Menüeinträge für jede Qualitätsstufe
+  addQualityMenuItems(qualityMenu: any) {
+    const qualityLevels = this.player.qualityLevels();
+    const levelsArray = Array.from(qualityLevels);
     const activeIndex = levelsArray.findIndex(
       (level) => (level as QualityLevel).enabled_
     );
 
+    // Qualitätsstufen hinzufügen
     levelsArray.forEach((level, index) => {
       const MenuItem = videojs.getComponent('MenuItem');
       const menuItem = new MenuItem(this.player, {
@@ -331,37 +365,74 @@ export class VideoplayerComponent
         className: 'vjs-menu-item-text',
         textContent: label,
       });
+
       menuItem.el().appendChild(labelEl);
 
       if (index === activeIndex) {
         menuItem.addClass('vjs-selected');
       }
 
-      menuItem.on('click', () => {
-        levelsArray.forEach((_, i) => {
-          qualityLevels[i].enabled = i === index;
-        });
-        qualityMenu.children().forEach((item: any) => {
-          item.removeClass('vjs-selected');
-        });
-        menuItem.addClass('vjs-selected');
-
-        this.snackBarService.showSnackBarChangedVideoQuality(
-          this.getQualityLabel(level as QualityLevel)
-        );
-      });
-
+      this.setupQualityItemClickHandler(
+        menuItem,
+        level,
+        index,
+        qualityLevels,
+        qualityMenu
+      );
       qualityMenu.addChild(menuItem);
     });
 
-    qualityMenuButton.addChild(qualityMenu);
+    return qualityMenu;
+  }
 
+  // Funktion 4: Einrichten des Click-Handlers für Menüeinträge und Hinzufügen zur ControlBar
+  setupQualityItemClickHandler(
+    menuItem: any,
+    level: any,
+    index: number,
+    qualityLevels: any,
+    qualityMenu: any
+  ) {
+    menuItem.on('click', () => {
+      // Setze die ausgewählte Qualität
+      for (let i = 0; i < qualityLevels.length; i++) {
+        qualityLevels[i].enabled = i === index;
+      }
+
+      // Aktualisiere die Auswahl im Menü
+      qualityMenu.children().forEach((item: any) => {
+        item.removeClass('vjs-selected');
+      });
+      menuItem.addClass('vjs-selected');
+
+      // Zeige eine Benachrichtigung über die Qualitätsänderung
+      this.snackBarService.showSnackBarChangedVideoQuality(
+        this.getQualityLabel(level as QualityLevel)
+      );
+    });
+  }
+
+  // Hauptfunktion, die die obigen Funktionen nutzt
+  setupQualitySelector() {
+    if (this.qualitySelectorAdded) return;
+
+    // Initialisiere die Quality-Komponenten
+    this.setupQualityComponents();
+
+    // Erstelle den Quality-Button und das Menü
+    const { qualityMenuButton, qualityMenu } = this.createQualityMenuButton();
+
+    // Füge die Menüeinträge hinzu
+    this.addQualityMenuItems(qualityMenu);
+
+    // Füge den Button in die ControlBar ein
     const controlBar = this.player.controlBar;
     controlBar.addChild(
       qualityMenuButton,
       {},
       controlBar.children().length - 2
     );
+
     this.qualitySelectorAdded = true;
   }
 
