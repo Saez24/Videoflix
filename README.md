@@ -15,7 +15,7 @@
 
 ## About the Project
 
-- This project is a RESTful API backend for a video streaming application
+- This project is a RESTful API backend for a video streaming application https://github.com/Saez24/Videoflix_Frontend_DA
 - It allows users to register, verify the account, login, reset the password, request a new password
 - Besides that you can upload your own videos with thumbnails, the backend handles the formatting of the thumbnail and the videos
 - The videos will afterwards be available in 3 different qualities to stream from (1080p, 720p, 480p) and there will be a video preview when the video is selected on the dashboard
