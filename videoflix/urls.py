@@ -23,6 +23,10 @@ import rq
 from registration.api.views import VerifyEmailView
 from django.urls import include
 from profiles.api.views import PasswordResetRequestView, PasswordResetConfirmView
+from django.urls import path
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
 
 
 urlpatterns = [
@@ -36,5 +40,7 @@ urlpatterns = [
     path('django-rq/', include('django_rq.urls')), 
     path('rq/', include('django_rq.urls')),
     path('api/password-reset/request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
-    path('api/password-reset/confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),   
+    path('api/password-reset/confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),  
+    path('sentry-debug/', trigger_error),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
