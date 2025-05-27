@@ -32,6 +32,10 @@
 
 ## Setup
 
+### Requirements
+
+- Videoflix Backend https://github.com/Saez24/Videoflix_Backend
+
 ### Prerequisites
 
 - Node.js 18+
@@ -79,7 +83,7 @@ export const environment = {
 
 ```
 
-## 👨‍💻 Development
+## Development
 
 Running the app
 
@@ -89,7 +93,7 @@ ng serve --open
 
 ```
 
-## 🐳 Docker Deployment
+## Docker Deployment
 
 Production Build with Docker
 
@@ -99,7 +103,12 @@ docker-compose up --build
 
 ```
 
-📝 License
+Open application in browser on `http://localhost:8000/admin`
+upload your videos.
 
-MIT License © 2023 [Saez24]
+Open application in browser on `http://localhost`
+
+## License
+
+MIT License © 2025 [Saez24]
 Feel free to use, modify, and distribute this project.
