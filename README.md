@@ -34,7 +34,7 @@
 
 ### Requirements
 
-- Videoflix Backend https://github.com/Saez24/Videoflix_Backend
+- [Videoflix Backend](https://github.com/Saez24/Videoflix_Backend)
 
 ### Prerequisites
 
@@ -103,12 +103,11 @@ docker-compose up --build
 
 ```
 
-Open application in browser on `http://localhost:8000/admin`
-upload your videos.
+Open application in browser on `http://localhost:8000/admin` and upload your videos.
 
 Open application in browser on `http://localhost`
 
 ## License
 
-MIT License © 2025 [Saez24]
+MIT License © 2025 [Saez24](https://github.com/Saez24)
 Feel free to use, modify, and distribute this project.
