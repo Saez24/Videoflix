@@ -1,59 +1,105 @@
-# Videoflix
+# Videoflix (Frontend)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
+**Description**: Angular frontend for "Videoflix" – a video streaming platform.
 
-## Development server
+## Table of Contents
 
-To start a local development server, run:
+1. [Features](#features)
+2. [Technologies](#technologies)
+3. [Setup](#setup)
+4. [Development](#development)
+5. [Docker Deployment](#docker-deployment)
+6. [License](#license)
+
+## Features
+
+- 🎬 Video streaming with quality selection
+- 🔐 User authentication (login/registration)
+- 📱 Responsive design
+- 🖼️ Video thumbnails and previews
+- ⚡ Progressive Web App (PWA) support
+
+## Technologies
+
+| Technology       | Purpose            |
+| ---------------- | ------------------ |
+| Angular 19+      | Frontend framework |
+| TypeScript       | Language           |
+| RxJS             | State management   |
+| Angular Material | UI components      |
+| JWT              | Authentication     |
+| Docker           | Containerization   |
+
+## Setup
+
+### Prerequisites
+
+- Node.js 18+
+- Angular CLI 19+
+- Docker (optional)
 
 ```bash
+# Clone repository
+git clone https://github.com/Saez24/Videoflix_Frontend_DA.git
+cd Videoflix_Frontend_DA
+
+# Install dependencies
+npm install
+
+# Start development server
 ng serve
+
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Environment Configuration
 
-## Code scaffolding
+Create the following files in src/environments/:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+environment.development.ts (development)
 
 ```bash
-ng generate component component-name
+
+export const environment = {
+  production: false,
+  apiUrl: 'http://your-backend-server:8000/api',
+  baseUrl: 'http://your-backend-server:8000',
+};
+
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+environment.ts (production)
 
 ```bash
-ng generate --help
+
+export const environment = {
+  production: true,
+  apiUrl: 'http://your-backend-server:8000/api',
+  baseUrl: 'http://your-backend-server:8000',
+};
+
 ```
 
-## Building
+## 👨‍💻 Development
 
-To build the project run:
+Running the app
 
 ```bash
-ng build
+
+ng serve --open
+
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🐳 Docker Deployment
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Production Build with Docker
 
 ```bash
-ng test
+
+docker-compose up --build
+
 ```
 
-## Running end-to-end tests
+📝 License
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT License © 2023 [Saez24]
+Feel free to use, modify, and distribute this project.

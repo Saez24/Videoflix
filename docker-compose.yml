@@ -1,0 +1,6 @@
+services:
+  web:
+    build: .
+    ports:
+      - "80:80" # Port 8080 verwenden um Konflikte zu vermeiden
+    restart: unless-stopped
