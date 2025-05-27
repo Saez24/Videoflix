@@ -21,14 +21,11 @@
 
 ## Technologies
 
-| Technology       | Purpose            |
-| ---------------- | ------------------ |
-| Angular 19+      | Frontend framework |
-| TypeScript       | Language           |
-| RxJS             | State management   |
-| Angular Material | UI components      |
-| JWT              | Authentication     |
-| Docker           | Containerization   |
+| Technology  | Purpose            |
+| ----------- | ------------------ |
+| Angular 19+ | Frontend framework |
+| TypeScript  | Language           |
+| Docker      | Containerization   |
 
 ## Setup
 
