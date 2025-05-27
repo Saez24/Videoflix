@@ -32,9 +32,8 @@
 
 List any software or dependencies that are required to run this project.
 
-- Python 3.13 or higher
-- A virtual environment manager like `env`
-- PostgreSQL or another compatible database
+- Docker with docker-compose (Docker Desktop)
+- Git
 
 ## Installation
 
@@ -44,113 +43,57 @@ Step-by-step instructions for setting up the project locally.
 
    ```bash
    git clone https://github.com/Saez24/videoflix_backend.git
-   cd videoflix:backend
+   cd videoflix_backend
 
    ```
 
-2. **Create a virtual environment**
+2. **Create .env with credentials**
 
    ```bash
-   python -m venv env
-   source env/bin/activate
+   cp .env.template .env
 
    ```
 
-3. **Install dependencies**
-
-   ```bash
-   pip install -r requirements.txt
-
-   ```
-
-4. **Create .env with credentials**
-
-   ```bash
-   touch .env
-   nano .env
-
-   ```
-
-5. **paste credentials with your own values(important) and save the file**
+5. **Paste credentials with your own values(important) and save the file**
 
    ```bash"
-   SECRET_KEY=your django secret key
-   DEBUG=True or False
+   DJANGO_SUPERUSER_PASSWORD=adminpassword
+   DJANGO_SUPERUSER_USERNAME=admin
+   DJANGO_SUPERUSER_EMAIL=admin@example.com
 
-   ALLOWED_HOSTS=all allowed hosts
+   SECRET_KEY="your django secret key"
+   DEBUG=True
+   ALLOWED_HOSTS=localhost,127.0.0.1
+   CSRF_TRUSTED_ORIGINS=http://localhost:4200,http://127.0.0.1:4200
 
-   CORS_ALLOW_ALL_ORIGINS = True or False
-   CORS_ALLOWED_ORIGINS_REGEXES=all allowed origins
-   CSRF_TRUSTED_ORIGINS=all trusted origins
+   DB_NAME=your_database_name,
+   DB_USER=your_database_user,
+   DB_PASSWORD=your_database_password,
+   DB_HOST=db,
+   DB_PORT=5432
 
-   FRONTEND_URL= https://www.example.com
+   REDIS_HOST=redis
+   REDIS_LOCATION=redis://redis:6379/1
+   REDIS_PORT=6379
+   REDIS_DB=0
 
-   DATABASE_NAME=your postgresql database name
-   DATABASE_USER=your postgresql user
-   DATABASE_PASSWORD=your postgresql server password
-   DATABASE_HOST=your postgresql host
-   DATABASE_PORT=your postgresql port
+   EMAIL_HOST=smtp.example.com
+   EMAIL_PORT=587
+   EMAIL_HOST_USER=your_email_user
+   EMAIL_HOST_PASSWORD=your_email_user_password
+   EMAIL_USE_TLS=True
+   EMAIL_USE_SSL=False
+   DEFAULT_FROM_EMAIL=default_from_email
 
-   EMAIL_HOST= smtp.example.com
-   EMAIL_PORT= 587
-   EMAIL_USE_TLS= True 
-   EMAIL_HOST_USER= your email address to send emails
-   EMAIL_HOST_PASSWORD= the password to let third parties use your email
-   DEFAULT_FROM_EMAIL = noreply@example.com
-
-   REDIS_LOCATION=your redis host
-   REDIS_PASSWORD=your redis password
-
-   ```
-
-  **Zertifikats-Bundle
-  
-   ```bash"
-   /Applications/Python\ 3.13/Install\ Certificates.command
-   ```
-
-6. **run postgresql**
-
-   ```bash
-   service postgresql start
-
-   ```
-
-7. **Run database migrations**
-
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-
-
-   ```
-
-8. **Create a superuser (optional)**
-
-   ```bash
-   python manage.py createsuperuser
-   follow the instructions of the console
-
-   ```
-
-9. **Start the nginx**
-
-   ```bash
-   service start nginx
-
-   ```
-
-10. **Start gunicorn**
-
-    ```bash
-    gunicorn videoflix.wsgi:application
-    ```
-
-11. **Start RQWorker**
-
-    ```bash
-    python manage.py rqworker default
     ```    
+
+6. **Build and start the project using docker-compose.**
+
+   ```bash"
+   docker-compose up --build
+
+   ```
+   Open application in browser on `http://localhost:8000/admin`
 
 ## Usage
 

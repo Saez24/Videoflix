@@ -11,18 +11,21 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from calendar import c
+from json import load
 import os
 from pathlib import Path
 from decouple import config
 import ssl
 import certifi
-
+from dotenv import load_dotenv
 import sentry_sdk
+
+load_dotenv()
 
 EMAIL_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
 sentry_sdk.init(
-    dsn="https://e3e78fcba413a1725357d1d5d122cf80@o4509247007096832.ingest.de.sentry.io/4509247008276560",
+    dsn=os.environ.get("SENTRY_DSN", default="https://examplePublicKey@o0.ingest.sentry.io/0"),
     # Add data like request headers and IP for users,
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     send_default_pii=True,
@@ -34,25 +37,27 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST') 
-EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-FRONTEND_URL = config('FRONTEND_URL')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@videoflix.com')
+EMAIL_HOST = os.environ.get("EMAIL_HOST", default="smtp.mailtrap.io") 
+EMAIL_PORT = os.environ.get("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", default="your_mailtrap_username")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", default="your_mailtrap_password")
+FRONTEND_URL = os.environ.get("FRONTEND_URL", default="http://localhost:4200")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", default="test@example.com")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", default="django-insecure-secret-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG")
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", default="localhost").split(",")
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", default="http://localhost:4200").split(",")
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", default="http://localhost:4200").split(",")
 
 
 # Application definition
@@ -81,6 +86,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,11 +95,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', cast=bool)
-
-CORS_ALLOWED_ORIGIN_REGEXES = config('CORS_ALLOWED_ORIGIN_REGEXES', default='').split(',')
-
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
 
 ROOT_URLCONF = 'videoflix.urls'
 
@@ -127,21 +128,20 @@ WSGI_APPLICATION = 'videoflix.wsgi.application'
 # }
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DATABASE_NAME'),
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': config('DATABASE_HOST'),
-        'PORT': config('DATABASE_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT")
     }
 }
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": config("REDIS_LOCATION"),
-        "PORT": config("REDIS_PORT"),
+        "LOCATION": os.environ.get("REDIS_LOCATION", default="redis://redis:6379/1"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -151,13 +151,11 @@ CACHES = {
 
 RQ_QUEUES = {
     'default': {
-        'HOST': config("REDIS_LOCATION"),
-        'PORT': config("REDIS_PORT"),
-        'DB': config("REDIS_DB"),
+        'HOST': os.environ.get("REDIS_HOST", default="redis"),
+        'PORT': os.environ.get("REDIS_PORT", default=6379),
+        'DB': os.environ.get("REDIS_DB", default=0),
         'DEFAULT_TIMEOUT': 900,
-        'REDIS_CLIENT_KWARGS': { 
-            
-        },
+        'REDIS_CLIENT_KWARGS': {},
     },
 }
 
@@ -199,7 +197,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "static"
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
