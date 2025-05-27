@@ -1,0 +1,82 @@
+<header>
+  <div class="background">
+    <img src="./../../assets/images/login.jpeg" alt="background" />
+  </div>
+</header>
+
+<form
+  (ngSubmit)="
+    authService.logIn({
+      email: email.value || '',
+      password: password.value || ''
+    })
+  "
+>
+  <main class="login-card">
+    <mat-card appearance="outlined">
+      <mat-card-content class="login-card-content"
+        ><h1>Log in</h1>
+
+        <div class="password-field-container">
+          <mat-form-field appearance="outline">
+            <mat-icon matPrefix>email</mat-icon>
+            <input
+              matInput
+              placeholder="E-Mail-Address"
+              [formControl]="email"
+              (blur)="updateErrorMessage()"
+              required
+              [autocomplete]="true"
+            />
+            @if (email.invalid) {
+            <mat-error>{{ errorMessage() }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div class="password-field-container">
+          <mat-form-field appearance="outline">
+            <mat-icon matPrefix>lock</mat-icon>
+            <input
+              matInput
+              placeholder="Password"
+              [type]="hide() ? 'password' : 'text'"
+              [formControl]="password"
+              autocomplete="current-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="clickEvent($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide()"
+            >
+              <mat-icon>{{
+                hide() ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <mat-checkbox class="remember-me">Remember me</mat-checkbox>
+        <button
+          class="btn"
+          (NgSubmit)="
+            authService.logIn({
+              email: email.value || '',
+              password: password.value || ''
+            })
+          "
+        >
+          Log in
+        </button>
+        <a routerLink="/reset-password" routerLinkActive="active"
+          >Forgot password?</a
+        >
+        <div class="login-footer">
+          <p>New to Videoflix?</p>
+          <a routerLink="/sign-up" routerLinkActive="active">Sign Up now</a>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </main>
+</form>

@@ -1,0 +1,30 @@
+<header>
+  <div class="background">
+    <img src="./../../assets/images/background-start.jpeg" alt="background" />
+  </div>
+
+  <div class="top-menu">
+    <button
+      class="btn login-button"
+      routerLink="/sign-in"
+      routerLinkActive="active"
+    >
+      <p>Log in</p>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="content">
+    <div class="infotext">
+      <h1>Movies, TV shows, and more</h1>
+      <p>Enter your email to create or restart your subscription.</p>
+      <div class="email-input">
+        <input type="email" placeholder="E-Mail-Address" [(ngModel)]="email" />
+        <button class="btn start-button" (click)="navigateToSignUp()">
+          <p>Sign up</p>
+        </button>
+      </div>
+    </div>
+  </section>
+</main>

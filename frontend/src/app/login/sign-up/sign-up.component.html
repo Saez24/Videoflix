@@ -1,0 +1,96 @@
+<header>
+  <div class="background">
+    <img src="./../../assets/images/login.jpeg" alt="background" />
+  </div>
+  <div class="top-menu">
+    <button
+      class="btn login-button"
+      routerLink="/sign-in"
+      routerLinkActive="active"
+    >
+      <p>Log in</p>
+    </button>
+  </div>
+</header>
+
+<main class="login-card">
+  <mat-card appearance="outlined">
+    <mat-card-content class="login-card-content"
+      ><h1>Sign up</h1>
+
+      <div class="password-field-container">
+        <mat-form-field appearance="outline">
+          <mat-icon matPrefix>email</mat-icon>
+          <input
+            matInput
+            placeholder="E-Mail-Address"
+            [formControl]="email"
+            (blur)="updateErrorMessage()"
+            required
+            [autocomplete]="true"
+          />
+          @if (email.invalid) {
+          <mat-error>{{ errorMessage() }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+      <div class="password-field-container">
+        <mat-form-field appearance="outline">
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            placeholder="Password"
+            [type]="hide() ? 'password' : 'text'"
+            [formControl]="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="clickEvent($event)"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide()"
+          >
+            <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="password-field-container">
+        <mat-form-field appearance="outline">
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            placeholder="Repeat password"
+            [type]="hide() ? 'password' : 'text'"
+            [formControl]="repeated_password"
+            autocomplete="current-password"
+          />
+          <button
+            class="btn password-button"
+            mat-icon-button
+            matSuffix
+            (click)="clickEvent($event)"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide()"
+          >
+            <mat-icon>{{ hide() ? "visibility_off" : "visibility" }}</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <button
+        class="btn register-button"
+        [disabled]="!isFormValid()"
+        (click)="
+          authService.register({
+            email: email.value || '',
+            password: password.value || '',
+            repeated_password: repeated_password.value || ''
+          })
+        "
+      >
+        Get started
+      </button>
+    </mat-card-content>
+  </mat-card>
+</main>

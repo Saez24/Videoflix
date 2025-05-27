@@ -1,0 +1,21 @@
+<div
+  class="logo"
+  routerLink="/"
+  routerLinkActive="active"
+  *ngIf="!isContentPage"
+>
+  <img class="logo-image" src="./../../assets/images/logo.png" alt="logo" />
+  <img
+    class="logo-mobile-image"
+    src="./../../assets/images/symbol.png"
+    alt="logo"
+  />
+</div>
+
+<footer *ngIf="showFooter">
+  <div class="bottom-menu">
+    <a routerLink="/privacy-policy" routerLinkActive="active">Datenschutz</a>
+    <a routerLink="/legal-notice" routerLinkActive="active">Impressum</a>
+  </div>
+</footer>
+<router-outlet />
