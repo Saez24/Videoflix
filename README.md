@@ -110,4 +110,5 @@ Open application in browser on `http://localhost`
 ## License
 
 MIT License © 2025 [Saez24](https://github.com/Saez24)
+
 Feel free to use, modify, and distribute this project.
