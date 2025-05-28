@@ -24,12 +24,12 @@ load_dotenv()
 
 EMAIL_SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
-sentry_sdk.init(
-    dsn=os.environ.get("SENTRY_DSN", default="https://examplePublicKey@o0.ingest.sentry.io/0"),
-    # Add data like request headers and IP for users,
-    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
-    send_default_pii=True,
-)
+# sentry_sdk.init(
+#     dsn=os.environ.get("SENTRY_DSN", default="https://examplePublicKey@o0.ingest.sentry.io/0"),
+#     # Add data like request headers and IP for users,
+#     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+#     send_default_pii=True,
+# )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

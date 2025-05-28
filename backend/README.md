@@ -9,13 +9,11 @@
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation)
 5. [Usage](#usage)
-6. [API Documentation](#api-documentation)
-7. [Testing](#testing)
-8. [License](#license)
+6. [License](https://github.com/Saez24/Videoflix/tree/main?tab=MIT-1-ov-file#)
 
 ## About the Project
 
-- This project is a RESTful API backend for a video streaming [application](https://github.com/Saez24/Videoflix_Frontend_DA)
+- This project is a RESTful API backend for a video streaming [application](https://github.com/Saez24/Videoflix/tree/main/frontend)
 - It allows users to register, verify the account, login, reset the password, request a new password
 - Besides that you can upload your own videos with thumbnails, the backend handles the formatting of the thumbnail and the videos
 - The videos will afterwards be available in 3 different qualities to stream from (1080p, 720p, 480p) and there will be a video preview when the video is selected on the dashboard
@@ -42,8 +40,8 @@ Step-by-step instructions for setting up the project locally.
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/Saez24/videoflix_backend.git
-   cd videoflix_backend
+   git clone https://github.com/Saez24/Videoflix.git
+   cd Videoflix/backend
 
    ```
 
@@ -54,46 +52,54 @@ Step-by-step instructions for setting up the project locally.
 
    ```
 
-5. **Paste credentials with your own values(important) and save the file**
+3. **Paste credentials with your own values(important) and save the file**
 
-   ```bash"
-   DJANGO_SUPERUSER_PASSWORD=adminpassword
-   DJANGO_SUPERUSER_USERNAME=admin
-   DJANGO_SUPERUSER_EMAIL=admin@example.com
+```bash"
+DJANGO_SUPERUSER_PASSWORD=adminpassword
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=admin@example.com
 
-   SECRET_KEY="your django secret key"
-   DEBUG=True
-   ALLOWED_HOSTS=localhost,127.0.0.1
-   CSRF_TRUSTED_ORIGINS=http://localhost:4200,http://127.0.0.1:4200
+SECRET_KEY="your django secret key"
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=http://localhost,http://127.0.0.1
+CORS_ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
 
-   DB_NAME=your_database_name,
-   DB_USER=your_database_user,
-   DB_PASSWORD=your_database_password,
-   DB_HOST=db,
-   DB_PORT=5432
+FRONTEND_URL=http://localhost
 
-   REDIS_HOST=redis
-   REDIS_LOCATION=redis://redis:6379/1
-   REDIS_PORT=6379
-   REDIS_DB=0
+DB_NAME=your_database_name,
+DB_USER=your_database_user,
+DB_PASSWORD=your_database_password,
+DB_HOST=db,
+DB_PORT=5432
 
-   EMAIL_HOST=smtp.example.com
-   EMAIL_PORT=587
-   EMAIL_HOST_USER=your_email_user
-   EMAIL_HOST_PASSWORD=your_email_user_password
-   EMAIL_USE_TLS=True
-   EMAIL_USE_SSL=False
-   DEFAULT_FROM_EMAIL=default_from_email
+POSTGRES_USER=${DB_USER}
+POSTGRES_PASSWORD=${DB_PASSWORD}
+POSTGRES_DB=${DB_NAME}
+POSTGRES_HOST=${DB_HOST}
+POSTGRES_PORT=${DB_PORT}
 
-    ```    
+REDIS_HOST=redis
+REDIS_LOCATION=redis://redis:6379/1
+REDIS_PORT=6379
+REDIS_DB=1
 
-6. **Build and start the project using docker-compose.**
+EMAIL_HOST=smtp.example.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your_email_user
+EMAIL_HOST_PASSWORD=your_email_user_password
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=default_from_email
 
-   ```bash"
-   docker-compose up --build
+```
 
-   ```
-   Open application in browser on `http://localhost:8000/admin`
+4. **Build and start the project using docker-compose.**
+
+```bash"
+docker-compose up --build
+```
+
+Open application in browser on `http://localhost:8000/admin`
 
 ## Usage
 
@@ -132,7 +138,6 @@ Content endpoints provide functionality for managing the video progress of viewe
 - GET `/api/content/videos/`
   Returns a list of all available videos.
 
-
 ## Testing
 
 Instructions for running the automated tests for the project.
@@ -141,17 +146,17 @@ Instructions for running the automated tests for the project.
 
 Execute all tests:
 
-    python manage.py test
+```bash
+
+python manage.py test
+
+```
 
 2. **Check test coverage**
 
 get test coverage of the whole application:
 
-    coverage run --source='.' manage.py test
-    coverage report -m
-
-## License
-
-MIT License © 2025 [Saez24](https://github.com/Saez24)
-
-Feel free to use, modify, and distribute this project.
+```bash
+coverage run --source='.' manage.py test
+coverage report -m
+```

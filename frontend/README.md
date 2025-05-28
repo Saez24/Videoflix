@@ -9,7 +9,7 @@
 3. [Setup](#setup)
 4. [Development](#development)
 5. [Docker Deployment](#docker-deployment)
-6. [License](#license)
+6. [License](https://github.com/Saez24/Videoflix/tree/main?tab=MIT-1-ov-file#)
 
 ## Features
 
@@ -31,7 +31,7 @@
 
 ### Requirements
 
-- [Videoflix Backend](https://github.com/Saez24/Videoflix_Backend)
+- [Videoflix Backend](https://github.com/Saez24/Videoflix/tree/main/backend)
 
 ### Prerequisites
 
@@ -41,8 +41,9 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/Saez24/Videoflix_Frontend_DA.git
-cd Videoflix_Frontend_DA
+git clone https://github.com/Saez24/Videoflix.git
+cd Videoflix/frontend
+
 
 # Install dependencies
 npm install
@@ -62,7 +63,7 @@ environment.development.ts (development)
 
 export const environment = {
   production: false,
-  apiUrl: 'http://your-backend-server:8000/api',
+  apiUrl: 'http://your-backend-server:8000/api/',
   baseUrl: 'http://your-backend-server:8000',
 };
 
@@ -74,7 +75,7 @@ environment.ts (production)
 
 export const environment = {
   production: true,
-  apiUrl: 'http://your-backend-server:8000/api',
+  apiUrl: 'http://your-backend-server:8000/api/',
   baseUrl: 'http://your-backend-server:8000',
 };
 
@@ -103,9 +104,3 @@ docker-compose up --build
 Open application in browser on `http://localhost:8000/admin` and upload your videos.
 
 Open application in browser on `http://localhost`
-
-## License
-
-MIT License © 2025 [Saez24](https://github.com/Saez24)
-
-Feel free to use, modify, and distribute this project.

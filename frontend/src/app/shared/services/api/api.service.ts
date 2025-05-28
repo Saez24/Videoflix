@@ -13,7 +13,7 @@ export interface ApiResponse<T> {
   providedIn: 'root',
 })
 export class ApiService {
-  constructor() {}
+  constructor() { }
 
   API_BASE_URL = environment.apiBaseUrl;
   STATIC_BASE_URL = environment.staticBaseUrl;

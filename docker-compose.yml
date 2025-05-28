@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: videoflix_database
+    env_file: ./backend/.env
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secure_fallback}
+      POSTGRES_DB: ${DB_NAME:-videoflix}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/postgres-init.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+    networks:
+      - videoflix-net
+
+  redis:
+    image: redis:latest
+    container_name: videoflix_redis
+    networks:
+      - videoflix-net
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: videoflix_backend
+    env_file: ./backend/.env
+    volumes:
+      - ./backend:/app
+      - videoflix_media:/app/media
+      - videoflix_static:/app/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - videoflix-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: videoflix_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - videoflix-net
+
+volumes:
+  postgres_data:
+  redis_data:
+  videoflix_media:
+  videoflix_static:
+
+networks:
+  videoflix-net:
+    driver: bridge
