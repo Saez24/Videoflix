@@ -66,8 +66,8 @@ environment.development.ts (development)
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000/api/',
-  baseUrl: 'http://localhost:8000',
+  apiBaseUrl: 'http://localhost:8000/api/',
+  staticBaseUrl: 'http://localhost:8000',
 };
 
 ```
@@ -78,8 +78,8 @@ environment.ts (production)
 
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8000/api/',
-  baseUrl: 'http://localhost:8000',
+  apiBaseUrl: 'http://localhost:8000/api/',
+  staticBaseUrl: 'http://localhost:8000',
 };
 
 ```
