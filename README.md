@@ -8,7 +8,7 @@ Angular frontend and Django backend for "Videoflix" – a video streaming platfo
 2. [Technologies](#technologies)
 3. [Installation](#installation)
 4. [Usage](#usage)
-5. [License](https://github.com/Saez24/Videoflix/tree/main?tab=MIT-1-ov-file#)
+5. [License](https://github.com/Saez24/Videoflix/blob/main/LICENSE)
 
 ## Features
 
