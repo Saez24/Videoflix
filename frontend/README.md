@@ -9,7 +9,7 @@
 3. [Setup](#setup)
 4. [Development](#development)
 5. [Docker Deployment](#docker-deployment)
-6. [License](https://github.com/Saez24/Videoflix/tree/main?tab=MIT-1-ov-file#)
+6. [License](https://github.com/Saez24/Videoflix/blob/main/LICENSE)
 
 ## Features
 
