@@ -74,7 +74,7 @@ cp frontend/src/environments/environment.development.template.ts frontend/src/en
 
 3. **Paste credentials with your own values(important) and save the file**
 
-Banend .env
+Backend .env
 
 ```bash"
 DJANGO_SUPERUSER_PASSWORD=adminpassword
