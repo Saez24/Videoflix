@@ -74,6 +74,8 @@ cp frontend/src/environments/environment.development.template.ts frontend/src/en
 
 3. **Paste credentials with your own values(important) and save the file**
 
+Banend .env
+
 ```bash"
 DJANGO_SUPERUSER_PASSWORD=adminpassword
 DJANGO_SUPERUSER_USERNAME=admin
@@ -112,6 +114,16 @@ EMAIL_USE_TLS=True
 DEFAULT_FROM_EMAIL=default_from_email
 
 ```
+
+Frontend environment.ts & environment.development.ts
+
+```bash
+
+apiBaseUrl: 'http://localhost:8000/api/',
+staticBaseUrl: 'http://localhost:8000',
+
+```
+
 
 4. **Build and start the project using docker-compose.**
 
