@@ -53,10 +53,10 @@ cd Videoflix
 
 2. **Create .env in /backend with credentials**
 
-   ```bash
-   cp /backend/.env.template /backend/.env
+```bash
+cp /backend/.env.template /backend/.env
 
-   ```
+```
 
 3. **Paste credentials with your own values(important) and save the file**
 
