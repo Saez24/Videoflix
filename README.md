@@ -58,6 +58,32 @@ cp /backend/.env.template /backend/.env
 
 ```
 
+Create the following files in ./frontend/src/environments/:
+
+environment.development.ts (development)
+
+```bash
+
+export const environment = {
+  production: false,
+  apiUrl: 'http://your-backend-server:8000/api/',
+  baseUrl: 'http://your-backend-server:8000',
+};
+
+```
+
+environment.ts (production)
+
+```bash
+
+export const environment = {
+  production: true,
+  apiUrl: 'http://your-backend-server:8000/api/',
+  baseUrl: 'http://your-backend-server:8000',
+};
+
+```
+
 3. **Paste credentials with your own values(important) and save the file**
 
 ```bash"
