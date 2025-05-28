@@ -51,36 +51,24 @@ cd Videoflix
 
 ```
 
-2. **Create .env in /backend with credentials**
+2. **Create environments with credentials**
+
+Backend
+.env
 
 ```bash
-cp /backend/.env.template /backend/.env
+cp backend/.env.template backend/.env
 
 ```
 
-Create the following files in ./frontend/src/environments/:
-
+Frontend
 environment.development.ts (development)
-
-```bash
-
-export const environment = {
-  production: false,
-  apiBaseUrl: 'http://localhost:8000/api/',
-  staticBaseUrl: 'http://localhost:8000',
-};
-
-```
-
 environment.ts (production)
 
 ```bash
 
-export const environment = {
-  production: true,
-  apiBaseUrl: 'http://localhost:8000/api/',
-  staticBaseUrl: 'http://localhost:8000',
-};
+cp frontend/src/environments/environment.template.ts frontend/src/environments/environment.ts
+cp frontend/src/environments/environment.development.template.ts frontend/src/environments/environment.development.ts 
 
 ```
 
