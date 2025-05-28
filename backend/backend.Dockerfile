@@ -1,6 +1,6 @@
 FROM python:3.12-alpine
 
-LABEL maintainer="mihai@developerakademie.com" \
+LABEL maintainer="Saez24" \
       version="1.0" \
       description="Python 3.14.0a7 Alpine 3.21"
 
